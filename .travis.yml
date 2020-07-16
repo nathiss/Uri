@@ -1,0 +1,25 @@
+language: csharp
+solution: SharpShare.sln
+
+mono: none
+dotnet: 3.1
+
+git:
+    depth: 1
+
+branches:
+    only:
+        - master
+
+jobs:
+    include:
+        - stage: Build
+          script:
+            - dotnet build SharpShare.Core
+            - dotnet build SharpShare.Core.Tests
+            - dotnet build SharpShare.Net
+            - dotnet build SharpShare.Net.Tests
+        - stage: Test
+          script:
+            - dotnet test SharpShare.Core.Tests
+            - dotnet test SharpShare.Net.Tests
