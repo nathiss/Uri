@@ -14,12 +14,14 @@ branches:
 jobs:
     include:
         - stage: Build
-          script:
-            - dotnet build SharpShare.Core
-            - dotnet build SharpShare.Core.Tests
-            - dotnet build SharpShare.Net
-            - dotnet build SharpShare.Net.Tests
+          script: dotnet build SharpShare.Core.Tests
+          name: "Build SharpShare.Core.Tests project"
+        - stage: Build
+          script: dotnet build SharpShare.Net.Tests
+          name: "Build SharpShare.Net.Tests project"
         - stage: Test
-          script:
-            - dotnet test SharpShare.Core.Tests
-            - dotnet test SharpShare.Net.Tests
+          script: dotnet test SharpShare.Core.Tests
+          name: "Run SharpShare.Core.Tests unit tests"
+        - stage: Test
+          script: dotnet test SharpShare.Net.Tests
+          name: "Run SharpShare.Net.Tests unit tests"
