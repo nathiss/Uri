@@ -12,17 +12,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Client", "SharpShare.Client\SharpShare.Client.csproj", "{6991C221-8BB7-42E6-9C08-1234F0060764}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpShare.Client", "SharpShare.Client\SharpShare.Client.csproj", "{6991C221-8BB7-42E6-9C08-1234F0060764}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Core", "SharpShare.Core\SharpShare.Core.csproj", "{A225D17B-3F2A-445F-AB79-FBCE6D101F6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpShare.Core", "SharpShare.Core\SharpShare.Core.csproj", "{A225D17B-3F2A-445F-AB79-FBCE6D101F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Net", "SharpShare.Net\SharpShare.Net.csproj", "{90B96BA2-C921-41D4-A0DB-F4F930D0E757}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Core.Tests", "SharpShare.Core.Tests\SharpShare.Core.Tests.csproj", "{BD9E7489-C065-4116-9F16-862CE0968EF5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Net.Tests", "SharpShare.Net.Tests\SharpShare.Net.Tests.csproj", "{EA9306E9-7658-40D4-88AB-616E2BD54A17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpShare.Net", "SharpShare.Net\SharpShare.Net.csproj", "{90B96BA2-C921-41D4-A0DB-F4F930D0E757}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpShare.WPF", "SharpShare.WPF\SharpShare.WPF.csproj", "{72C022E9-22F9-4E8A-BF8A-5951E387ADBB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpShare.Net.Tests", "SharpShare.Net.Tests\SharpShare.Net.Tests.csproj", "{49B2CA53-5C92-46EB-839A-FAC054AC6DC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShare.Core.Tests", "SharpShare.Core.Tests\SharpShare.Core.Tests.csproj", "{DD2230B5-A79E-4A17-9996-8ED1FC815CAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,18 +42,18 @@ Global
 		{90B96BA2-C921-41D4-A0DB-F4F930D0E757}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B96BA2-C921-41D4-A0DB-F4F930D0E757}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B96BA2-C921-41D4-A0DB-F4F930D0E757}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD9E7489-C065-4116-9F16-862CE0968EF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD9E7489-C065-4116-9F16-862CE0968EF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD9E7489-C065-4116-9F16-862CE0968EF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD9E7489-C065-4116-9F16-862CE0968EF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA9306E9-7658-40D4-88AB-616E2BD54A17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA9306E9-7658-40D4-88AB-616E2BD54A17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA9306E9-7658-40D4-88AB-616E2BD54A17}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA9306E9-7658-40D4-88AB-616E2BD54A17}.Release|Any CPU.Build.0 = Release|Any CPU
 		{72C022E9-22F9-4E8A-BF8A-5951E387ADBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{72C022E9-22F9-4E8A-BF8A-5951E387ADBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72C022E9-22F9-4E8A-BF8A-5951E387ADBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72C022E9-22F9-4E8A-BF8A-5951E387ADBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B2CA53-5C92-46EB-839A-FAC054AC6DC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B2CA53-5C92-46EB-839A-FAC054AC6DC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B2CA53-5C92-46EB-839A-FAC054AC6DC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B2CA53-5C92-46EB-839A-FAC054AC6DC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD2230B5-A79E-4A17-9996-8ED1FC815CAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD2230B5-A79E-4A17-9996-8ED1FC815CAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD2230B5-A79E-4A17-9996-8ED1FC815CAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD2230B5-A79E-4A17-9996-8ED1FC815CAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
