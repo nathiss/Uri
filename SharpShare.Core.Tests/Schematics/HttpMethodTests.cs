@@ -14,7 +14,7 @@ namespace SharpShare.Core.Tests.Schematics
     [TestClass]
     public class HttpMethodTests
     {
-        [TestMethod]
+        [DataTestMethod]
         [DataRow("GET", "GET", HttpMethodType.Get)]
         [DataRow("HEAD", "HEAD", HttpMethodType.Head)]
         [DataRow("POST", "POST", HttpMethodType.Post)]
