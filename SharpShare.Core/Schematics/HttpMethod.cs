@@ -3,7 +3,7 @@
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
-// See LICENSE.txt file in the project root for full license information. 
+// See LICENSE.txt file in the project root for full license information.
 #endregion
 
 using System;
@@ -15,7 +15,7 @@ namespace SharpShare.Core.Schematics
     /// This class represents the HTTP methods used for the client-server communication.
     /// </summary>
     /// <seealso cref="HttpMethodType" />
-    /// <seealso cref="https://www.ietf.org/rfc/rfc2616.txt">RFC 2616</seealso>
+    /// <seealso href="https://www.ietf.org/rfc/rfc2616.txt">RFC 2616</seealso>
     public class HttpMethod
     {
         /// <summary>

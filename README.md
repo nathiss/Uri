@@ -25,6 +25,8 @@ clients.
 * [RFC 7540](https://tools.ietf.org/html/rfc7540) - This is the official documentation of the protocol HTTP version 2 (HTTP/2).
 * [Introduction to HTTP/2](https://developers.google.com/web/fundamentals/performance/http2) - This article written by Google is
   a nice introduction to the fundamentals of HTTP/2.
+* [RFC 2616](https://tools.ietf.org/html/rfc2616) - THis is the official documentation of the protocol HTTP/1.1.
+* [RFC 3986](https://tools.ietf.org/html/rfc3986) - This is the official documentation of the Universal Resource Identifier (URI).
 
 ## Licence
 
