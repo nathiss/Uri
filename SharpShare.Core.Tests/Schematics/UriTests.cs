@@ -17,9 +17,10 @@ namespace SharpShare.Core.Tests.Schematics
     {
         [DataTestMethod]
         [DataRow("https://example.com/", "https", "example.com", new[] {""})]
-        [DataRow("https://www.example.com/", "https", "www.example.com", new[] {""})]
+        [DataRow("https://user@www.example.com/", "https", "user@www.example.com", new[] {""})]
         [DataRow("https://www.example.com", "https", "www.example.com", new string[] {})]
         [DataRow("ssh://a.com/foo/bar", "ssh", "a.com", new [] {"", "foo", "bar"})]
+        [DataRow("ss+h://a.com/foo/bar", "ss+h", "a.com", new [] {"", "foo", "bar"})]
         public void FromString_ReceivedValidUri_UriParsedProperly(string uriString, string scheme, string authority, string[] path)
         {
             // Arrange
@@ -63,6 +64,246 @@ namespace SharpShare.Core.Tests.Schematics
 
             // Assert
             Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_UriWithSchemeAndEmptyPath_UriProperlyParsed()
+        {
+            // Act
+            var uri = Uri.FromString("ssh:");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("ssh", uri.Scheme);
+            Assert.IsNull(uri.Authority);
+            Assert.IsNotNull(uri.Path);
+            Assert.AreEqual(0, uri.Path.Count);
+        }
+
+        [DataTestMethod]
+        [DataRow("ssh://auth.xyz//foo")]
+        [DataRow("ssh://auth.xyz//foo/bar")]
+        [DataRow("ssh://auth.xyz//")]
+        public void FromString_PathAbsoluteAndFirstSegmentEmpty_ReturnedNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_SchemeWithFirstCharNotLetter_ReturnedNull()
+        {
+            // Act
+            var uri = Uri.FromString("1sh://auth.xyz//foo");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("ssh(://auth.xyz/")]
+        [DataRow("s&sh://auth.xyz/")]
+        [DataRow("s@sh://auth.xyz/")]
+        [DataRow("s/sh://auth.xyz/")]
+        public void FromString_SchemeWithNotAllowedChar_ReturnedNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("ssh::/auth.xyz/")]
+        [DataRow("ssh:://auth.xyz/")]
+        [DataRow("ssh:abc:/auth.xyz/")]
+        public void FromString_NoAuthorityFirstPathWithColon_ReturnedNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_AuthorityEqualToHost_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://www.example.com/foo/bar");
+
+            // Assert
+            Assert.AreEqual(uri.Authority, uri.Host);
+        }
+
+        [TestMethod]
+        public void FromString_UserInformationNotEmpty_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://user@www.example.com/foo/bar");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("user", uri.UserInformation);
+        }
+
+        [TestMethod]
+        public void FromString_UserInformationNotEmpty_ValidHostProperty()
+        {
+            // Act
+            var uri = Uri.FromString("https://user@www.example.com/foo/bar");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("www.example.com", uri.Host);
+        }
+
+        [TestMethod]
+        public void FromString_HostWithMixedCapitalization_LowerCaseHost()
+        {
+            // Act
+            var uri = Uri.FromString("https://user@wWw.eXaMPle.COm/foo/bar");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("www.example.com", uri.Host);
+        }
+
+        [DataTestMethod]
+        [DataRow("HTTPS://a.com", "https")]
+        [DataRow("HttpS://a.com", "https")]
+        [DataRow("hTTpS://a.com", "https")]
+        [DataRow("hTtPs://a.com", "https")]
+        public void FromString_SchemeWithMixedCapitalization_LowerCaseScheme(string uriString, string scheme)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual(scheme, uri.Scheme);
+        }
+
+        [TestMethod]
+        public void FromString_PathWithMixedCapitalization_CapitalizationIsPreserved()
+        {
+            // Act
+            var uri = Uri.FromString("ssh://example.com/FoO/BAR");
+
+            // Assert
+            Assert.AreEqual("FoO", uri.Path[1]);
+            Assert.AreEqual("BAR", uri.Path[2]);
+        }
+
+        [TestMethod]
+        public void FromString_UserInformationWithMixedCapitalization_CapitalizationIsPreserved()
+        {
+            // Act
+            var uri = Uri.FromString("ssh://ABcdEfG@example.com/FoO/BAR");
+
+            // Assert
+            Assert.AreEqual("ABcdEfG", uri.UserInformation);
+        }
+
+        [TestMethod]
+        public void FromString_UserInformationEmpty_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("ssh://@example.com/FoO/BAR");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("", uri.UserInformation);
+        }
+
+        [DataTestMethod]
+        [DataRow("ssh://us$%er@example.com/FoO/BAR", "us$%er")]
+        [DataRow("ssh://us'er@example.com/FoO/BAR", "us'er")]
+        [DataRow("ssh://u:s~er@example.com/FoO/BAR", "u:s~er")]
+        public void FromString_UserInformationExtraChars_ReturnedValidObject(string uriString, string userInformation)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.AreEqual(userInformation, uri.UserInformation);
+        }
+
+        [DataTestMethod]
+        [DataRow("s¿sh://us$%er@exæample.com/FoO/BAR")]
+        [DataRow("ssh://usą'er@example.com/FoO/BAR")]
+        [DataRow("ssh://u:s~er@example.com/FoäO/BAR")]
+        [DataRow("ssh://u:s~er@example.com/FoąO/BAR")]
+        [DataRow("ssh://@example.com/FoO/BAR҂")]
+        public void FromString_UriContainsUnicode_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_UriWithPort_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com:8080/");
+
+            // Assert
+            Assert.AreEqual("8080", uri.Port);
+        }
+
+        [TestMethod]
+        public void FromString_UriWithEmptyPort_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com:/");
+
+            // Assert
+            Assert.AreEqual(null, uri.Port);
+        }
+
+        [TestMethod]
+        public void FromString_PortWithNonDigit_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com:80a/");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_AuthorityWithPort_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https://user@example.com:80/");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("user@example.com:80", uri.Authority);
+            Assert.AreEqual("user", uri.UserInformation);
+            Assert.AreEqual("example.com", uri.Host);
+            Assert.AreEqual("80", uri.Port);
+        }
+
+        [TestMethod]
+        public void FromString_UserWithColonAndPortPresent_ReturnedValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://user:passwd@example.com:8080/foo");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("user:passwd@example.com:8080", uri.Authority);
+            Assert.AreEqual("user:passwd", uri.UserInformation);
+            Assert.AreEqual("example.com", uri.Host);
+            Assert.AreEqual("8080", uri.Port);
         }
     }
 }

@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SharpShare.Core.Utils;
 
 namespace SharpShare.Core.Schematics
 {
@@ -33,7 +34,7 @@ namespace SharpShare.Core.Schematics
         /// </returns>
         public static Uri FromString(string uriString)
         {
-            if (string.IsNullOrWhiteSpace(uriString))
+            if (string.IsNullOrWhiteSpace(uriString) || uriString.ContainsNonAsciiLetters())
             {
                 return null;
             }
@@ -50,6 +51,14 @@ namespace SharpShare.Core.Schematics
 
                 var authority = ParseAuthority(uriString, scheme.Offset);
                 uri.Authority = authority.Authority;
+
+                var userInformation = ParseUserInformation(uri.Authority);
+                uri.UserInformation = userInformation.UserInformation;
+
+                var host = ParseHost(uri.Authority, userInformation.Offset);
+                uri.Host = host.Host;
+
+                uri.Port = ParsePort(uri.Authority, host.Offset);
 
                 var path = ParsePath(uriString, authority.Offset, uri.Authority != null);
                 uri.Path = path.Path;
@@ -74,10 +83,31 @@ namespace SharpShare.Core.Schematics
 
         /// <summary>
         /// This property represents the Authority of a URI. If the authority component was
-        /// not present if the URI, the value of this property will be null.
+        /// not present in the URI, the value of this property will be null.
         /// </summary>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2">RFC 3986 (Section 3.2)</seealso>
         public string Authority { get; private set; }
+
+        /// <summary>
+        /// This property represents the User Information of a URI. If the user information
+        /// component was not present in the URI, the value of this property will be null.
+        /// </summary>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.1">RFC 3986 (Section 3.2.1)</seealso>
+        public string UserInformation { get; private set; }
+
+        /// <summary>
+        /// This property represents the Host of a URI. If the host component was not present
+        /// in the URI, the value of this property will be null.
+        /// </summary>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
+        public string Host { get; private set; }
+
+        /// <summary>
+        /// This property represents the Port of a URI. If the port component was not present
+        /// in the URI, the value of this property will be null.
+        /// </summary>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
+        public string Port { get; private set; }
 
         /// <summary>
         /// This property represents the Path of a URI. If the path component of the URI
@@ -112,6 +142,11 @@ namespace SharpShare.Core.Schematics
         /// </returns>
         private static (string Scheme, int Offset) ParseScheme(string uriString)
         {
+            if (uriString.Length == 0 || !char.IsLetter(uriString[0]))
+            {
+                return (null, -1);
+            }
+
             var delimiterIndex = uriString.IndexOf(':');
             if (delimiterIndex == -1)
             {
@@ -142,7 +177,8 @@ namespace SharpShare.Core.Schematics
 
         /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns the
-        /// authority of the URI, if the URI has an authority.
+        /// authority of the URI, if the URI does not have an authority this method
+        /// returns a pair of null and an offset equal to the given <paramref name="offset"/>.
         /// </summary>
         /// <param name="uriString">
         /// This is the URI encoded as string. This parameter must not be null.
@@ -181,6 +217,154 @@ namespace SharpShare.Core.Schematics
         }
 
         /// <summary>
+        /// This method parses the given <paramref name="authority"/> and returns the user information
+        /// of the URI, if the URI does not have a user information this method will return a pair
+        /// of null and zero.
+        /// </summary>
+        /// <param name="authority">
+        /// This is the authority component of the URI.
+        /// </param>
+        /// <returns>
+        /// A pair of a string representing the user information and the offset of the rest
+        /// of <paramref name="authority"/> is returned. If the authority does not have a user
+        /// information component this method returns a pair of null and zero.
+        /// If the given <paramref name="authority"/> string is null, this method returns a pair of
+        /// null and zero.
+        /// </returns>
+        private static (string UserInformation, int Offset) ParseUserInformation(string authority)
+        {
+            if (string.IsNullOrWhiteSpace(authority))
+            {
+                return (null, 0);
+            }
+
+            var endOfUserInformation = authority.IndexOf('@');
+            if (endOfUserInformation == -1)
+            {
+                return (null, 0);
+            }
+
+            var userInformation = authority.Substring(0, endOfUserInformation);
+
+            return (userInformation, endOfUserInformation + 1);
+        }
+
+        /// <summary>
+        /// This method parses the given <paramref name="authority"/> and returns the host of
+        /// the URI, if the URI does not have the authority component this method will return
+        /// a pair of null and an offset equal to the given <paramref name="offset"/>.
+        /// </summary>
+        /// <param name="authority">
+        /// This is the authority component of the URI. If this parameter is equal to null,
+        /// it means that the URI does not have the authority component.
+        /// </param>
+        /// <param name="offset">
+        /// This is the offset of the given <paramref name="authority"/> after which the
+        /// lookout will be performed. If the offset is greater or equal to the length
+        /// of <paramref name="authority"/> and the URI has the authority component,
+        /// this method will return a pair of null and an offset equal to the given
+        /// offset.
+        /// </param>
+        /// <returns>
+        /// A pair of a lowercase string representing the host component of the URI and the
+        /// offset of the rest of the given <paramref name="authority"/> is returned.
+        /// If the URI has the authority component, but does not have the host component,
+        /// then the URI is ill-formed and this method will throw an exception of type
+        /// <see cref="InvalidUriException"/>.
+        /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// An exception of this type is thrown if
+        /// <list type="bullet">
+        /// <item>
+        /// the URI has the authority component, but does not have the host component;
+        /// </item>
+        /// <item>
+        /// the user information component contains unallowed characters.
+        /// </item>
+        /// </list>
+        /// </exception>
+        private static (string Host, int Offset) ParseHost(string authority, int offset)
+        {
+            if (string.IsNullOrWhiteSpace(authority))
+            {
+                return (null, offset);
+            }
+
+            var hostString = authority.Substring(offset).ToLower();
+
+            if (!hostString.All(ch => UserInformationAllowedCharacters.Contains(ch)))
+            {
+                throw new InvalidUriException();
+            }
+
+            var endOfHost = authority.IndexOf(':', offset);
+            if (endOfHost == -1)
+            {
+                return (hostString, authority.Length);
+            }
+
+            return (authority.Substring(offset, endOfHost - offset), endOfHost + 1);
+        }
+
+        private static IList<char> UserInformationAllowedCharacters { get; } = new List<char>
+        {
+            // sub-delims
+            '!', '$' , '&' , '\'' , '(' , ')' , '*' , '+' , ',' , ';' , '=',
+
+            // ASCII letters
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+
+            // ASCII decimal digits
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+
+            // rest of unreserved
+            '-', '.', '_', '~',
+
+            // colon
+            ':',
+        };
+
+        /// <summary>
+        /// This method parses the given <paramref name="authority"/> and returns the port of
+        /// the URI, if the URI does not have the authority component this method will return
+        ///  null.
+        /// </summary>
+        /// <param name="authority">
+        /// This is the authority component of the URI. If this parameter is equal to null,
+        /// it means that the URI does not have the authority component.
+        /// </param>
+        /// <param name="offset">
+        /// This is the offset of the given <paramref name="authority"/> after which the
+        /// lookout will be performed. If the offset is greater or equal to the length
+        /// of <paramref name="authority"/> and the URI has the authority component,
+        /// this method will return  null.
+        /// </param>
+        /// <returns>
+        /// A string representing the port component of the URI is returned.
+        /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// If the port component of the URI contains non-digit character an exception of
+        /// this type is thrown.
+        /// </exception>
+        private static string ParsePort(string authority, int offset)
+        {
+            if (string.IsNullOrWhiteSpace(authority) || offset >= authority.Length)
+            {
+                return null;
+            }
+
+            var portString = authority.Substring(offset);
+
+            if (!int.TryParse(portString, out _))
+            {
+                throw new InvalidUriException();
+            }
+
+            return portString;
+        }
+
+        /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns the path
         /// of the URI.
         /// </summary>
@@ -202,6 +386,22 @@ namespace SharpShare.Core.Schematics
         /// is empty this method will return a pair of empty collection and an offset
         /// equal to the given <paramref name="offset"/>.
         /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// An exception of this type is thrown if:
+        /// <list type="bullet">
+        /// <item>
+        /// the URI has the authority component, but the path do not begin with a slash ("/");
+        /// </item>
+        /// <item>
+        /// the URI does not have the authority component and the first segment of the path
+        /// is empty;
+        /// </item>
+        /// <item>
+        /// the URI does not have the authority component and the first segment of the path
+        /// contains a colon (":").
+        /// </item>
+        /// </list>
+        /// </exception>
         private static (IList<string> Path, int Offset) ParsePath(string uriString, int offset, bool hasAuthority)
         {
             if (offset >= uriString.Length)
@@ -227,9 +427,24 @@ namespace SharpShare.Core.Schematics
                     ? uriString.Substring(offset)
                     : uriString.Substring(offset, endOfPath - offset);
 
-                return pathString == "/" ?
-                    (new List<string>{""}, endOfPath) :
-                    (pathString.Split('/').ToList(), endOfPath);
+                if (pathString == "/")
+                {
+                    return (new List<string> {""}, endOfPath);
+                }
+
+                var pathSegments = pathString.Split('/').ToList();
+
+                if (pathSegments.Count >= 2)
+                {
+                    // If the path is absolute, the first segment must not be empty.
+                    // path-absolute = "/" [ segment-nz *( "/" segment ) ]
+                    if (pathSegments[0] == string.Empty && pathSegments[1] == string.Empty)
+                    {
+                        throw new InvalidUriException();
+                    }
+                }
+
+                return (pathSegments, endOfPath - offset);
             }
 
             // "Path component cannot begin with two slashes ("//")."
