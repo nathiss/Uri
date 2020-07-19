@@ -214,9 +214,9 @@ namespace SharpShare.Core.Schematics
         }
 
         /// <summary>
-        /// This list contains all possible characters that can be used inside a URI scheme.
+        /// This collection contains all possible characters that can be used inside a URI scheme.
         /// </summary>
-        private static IList<char> SchemeAllowedCharacters { get; } = new List<char>
+        private static HashSet<char> SchemeAllowedCharacters { get; } = new HashSet<char>
         {
             // ASCII letters
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m',
@@ -300,8 +300,44 @@ namespace SharpShare.Core.Schematics
 
             var userInformation = authority.Substring(0, endOfUserInformation);
 
+            if (!userInformation.All(ch => UserInformationAllowedCharacters.Contains(ch)))
+            {
+                throw new InvalidUriException();
+            }
+
             return (userInformation, endOfUserInformation + 1);
         }
+
+        /// <summary>
+        /// This collection contains all possible characters that can be used inside a user information component.
+        /// </summary>
+        private static readonly HashSet<char> UserInformationAllowedCharacters = new HashSet<char>
+        {
+            // Unreserved characters
+
+            // Alpha lowercase
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+
+            // Alpha uppercase
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+
+            // Digit
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+
+            '-', '.', '_', '~',
+
+            // Percent-Encoded
+
+            '%', 'A', 'B', 'C', 'D', 'E', 'F',
+
+            // sub-delims
+
+            '!', '$' , '&' , '\'' , '(' , ')' , '*' , '+' , ',' , ';' , '=',
+
+            ':',
+        };
 
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the host of
@@ -346,7 +382,7 @@ namespace SharpShare.Core.Schematics
 
             var hostString = authority.Substring(offset).ToLower();
 
-            if (!hostString.All(ch => UserInformationAllowedCharacters.Contains(ch)))
+            if (!hostString.All(ch => HostAllowedCharacters.Contains(ch)))
             {
                 throw new InvalidUriException();
             }
@@ -358,7 +394,11 @@ namespace SharpShare.Core.Schematics
                 (authority.Substring(offset, endOfHost - offset), endOfHost + 1);
         }
 
-        private static IList<char> UserInformationAllowedCharacters { get; } = new List<char>
+        /// <summary>
+        /// This collection contains all possible characters that can be used inside a
+        /// Host component.
+        /// </summary>
+        private static HashSet<char> HostAllowedCharacters { get; } = new HashSet<char>
         {
             // sub-delims
             '!', '$' , '&' , '\'' , '(' , ')' , '*' , '+' , ',' , ';' , '=',
@@ -488,6 +528,11 @@ namespace SharpShare.Core.Schematics
                     return (new List<string> {""}, endOfPath);
                 }
 
+                if (!pathString.All(ch => PathAllowedCharacters.Contains(ch)))
+                {
+                    throw new InvalidUriException();
+                }
+
                 var pathSegments = pathString.Split('/').ToList();
 
                 if (pathSegments.Count >= 2)
@@ -513,6 +558,11 @@ namespace SharpShare.Core.Schematics
                     ? uriString.Substring(offset)
                     : uriString.Substring(offset, endOfPath - offset);
 
+                if (!pathString.All(ch => PathAllowedCharacters.Contains(ch)))
+                {
+                    throw new InvalidUriException();
+                }
+
                 var pathSegments = pathString.Split('/').ToList();
                 if (pathSegments[0].Contains(':'))
                 {
@@ -524,6 +574,42 @@ namespace SharpShare.Core.Schematics
                 return (pathSegments, endOfPath);
             }
         }
+
+        /// <summary>
+        /// This collection contains all possible characters that can be used inside a
+        /// path component.
+        /// </summary>
+        private static readonly HashSet<char> PathAllowedCharacters = new HashSet<char>
+        {
+            '/',
+
+            // PCHAR
+
+            // Unreserved
+
+            // Alpha lowercase
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+
+            // Alpha uppercase
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+
+            // Digit
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+
+            '-', '.', '_', '~',
+
+            // Percent-Encoded
+
+            '%', 'A', 'B', 'C', 'D', 'E', 'F',
+
+            // sub-delims
+
+            '!', '$' , '&' , '\'' , '(' , ')' , '*' , '+' , ',' , ';' , '=',
+
+            ':', '@'
+        };
     }
 
     /// <summary>

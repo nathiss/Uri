@@ -4,5 +4,6 @@
 	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=metainformation/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=passwd/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=PCHAR/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=unallowed/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=us_0027er/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

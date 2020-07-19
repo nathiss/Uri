@@ -472,5 +472,35 @@ namespace SharpShare.Core.Tests.Schematics
             // Assert
             Assert.IsFalse(uri.HasEmptyPath);
         }
+
+        [TestMethod]
+        public void FromString_UserInformationHasNotAllowedChars_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https://user:pass[wd@example.com/");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_WithAuthorityPathContainsNotAllowedChars_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https://exmaple.com/foo[/bar");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_WithoutAuthorityPathContainsNotAllowedChars_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https:foo]/bar");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
     }
 }
