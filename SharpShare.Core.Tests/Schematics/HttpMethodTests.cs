@@ -15,24 +15,24 @@ namespace SharpShare.Core.Tests.Schematics
     public class HttpMethodTests
     {
         [DataTestMethod]
-        [DataRow("GET", "GET", HttpMethodType.Get)]
-        [DataRow("HEAD", "HEAD", HttpMethodType.Head)]
-        [DataRow("POST", "POST", HttpMethodType.Post)]
-        [DataRow("PUT", "PUT", HttpMethodType.Put)]
-        [DataRow("DELETE", "DELETE", HttpMethodType.Delete)]
-        [DataRow("TRACE", "TRACE", HttpMethodType.Trace)]
-        [DataRow("CONNECT", "CONNECT", HttpMethodType.Connect)]
-        [DataRow("OPTIONS", "OPTIONS", HttpMethodType.Options)]
+        [DataRow("GET", "GET", HttpMethod.Type.Get)]
+        [DataRow("HEAD", "HEAD", HttpMethod.Type.Head)]
+        [DataRow("POST", "POST", HttpMethod.Type.Post)]
+        [DataRow("PUT", "PUT", HttpMethod.Type.Put)]
+        [DataRow("DELETE", "DELETE", HttpMethod.Type.Delete)]
+        [DataRow("TRACE", "TRACE", HttpMethod.Type.Trace)]
+        [DataRow("CONNECT", "CONNECT", HttpMethod.Type.Connect)]
+        [DataRow("OPTIONS", "OPTIONS", HttpMethod.Type.Options)]
         public void FromString_ValidMethod_ReturnValidMethodObject(string encodedMethod,
             string expectedEncodedMethod,
-            HttpMethodType expectedHttpMethodType)
+            HttpMethod.Type expectedHttpMethodType)
         {
             // Act
             var method = HttpMethod.FromString(encodedMethod);
 
             // Assert
             Assert.AreEqual(expectedEncodedMethod, method.EncodedMethod);
-            Assert.AreEqual(expectedHttpMethodType, method.HttpMethodType);
+            Assert.AreEqual(expectedHttpMethodType, method.MethodType);
         }
 
         [TestMethod]
@@ -44,18 +44,17 @@ namespace SharpShare.Core.Tests.Schematics
 
             // Assert
             Assert.AreEqual("GET", getMethod.EncodedMethod);
-            Assert.AreEqual(HttpMethodType.Delete, deleteMethod.HttpMethodType);
+            Assert.AreEqual(HttpMethod.Type.Delete, deleteMethod.MethodType);
         }
 
         [TestMethod]
-        public void FromString_InvalidEncodedMethod_ReturnInvalidMethodObject()
+        public void FromString_InvalidEncodedMethod_ReturnsNull()
         {
             // Act
             var method = HttpMethod.FromString("unknown");
 
             // Assert
-            Assert.AreEqual("INVALID", method.EncodedMethod);
-            Assert.AreEqual(HttpMethodType.Invalid, method.HttpMethodType);
+            Assert.IsNull(method);
         }
 
         [TestMethod]
@@ -65,7 +64,37 @@ namespace SharpShare.Core.Tests.Schematics
             var method = HttpMethod.FromString("  GET         ");
 
             // Assert
-            Assert.AreEqual(HttpMethodType.Get, method.HttpMethodType);
+            Assert.AreEqual(HttpMethod.Type.Get, method.MethodType);
+        }
+
+        [TestMethod]
+        public void FromString_ParameterIsNull_ReturnsNull()
+        {
+            // Act
+            var method = HttpMethod.FromString(null);
+
+            // Assert
+            Assert.IsNull(method);
+        }
+
+        [TestMethod]
+        public void FromString_ParameterIsEmpty_ReturnsNull()
+        {
+            // Act
+            var method = HttpMethod.FromString(string.Empty);
+
+            // Assert
+            Assert.IsNull(method);
+        }
+
+        [TestMethod]
+        public void FromString_ParameterIsOnlyWhiteSpace_ReturnsNull()
+        {
+            // Act
+            var method = HttpMethod.FromString("      \t     \n    \r    ");
+
+            // Assert
+            Assert.IsNull(method);
         }
     }
 }
