@@ -84,9 +84,12 @@ their common syntax components:
 * telnet://192.0.2.16:80/
 * urn:oasis:names:specification:docbook:dtd:xml:4.1.2
 
-*Note: Not all URIs will be supported by `Uri` class.*
-
 ## Notes
 
 * The scheme and path components are required, though the path may be
   empty (no characters).
+* The syntax rule for host is ambiguous because it does not completely
+  distinguish between an IPv4address and a reg-name.  In order to
+  disambiguate the syntax, we apply the "first-match-wins" algorithm:
+  If host matches the rule for IPv4address, then it should be
+  considered an IPv4 address literal and not a reg-name.

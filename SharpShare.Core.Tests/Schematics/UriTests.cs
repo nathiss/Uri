@@ -502,5 +502,170 @@ namespace SharpShare.Core.Tests.Schematics
             // Assert
             Assert.IsNull(uri);
         }
+
+        [DataTestMethod]
+        [DataRow("https://user:@exam{ple.com/")]
+        [DataRow("https://user:@exam<ple.com/")]
+        public void FromString_HostHasNotAllowedChars_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("ftp://[v76.example.com]/", "[v76.example.com]", "v76.example.com")]
+        [DataRow("ftp://[v76.exam-ple.co~m]", "[v76.exam-ple.co~m]", "v76.exam-ple.co~m")]
+        [DataRow("ftp://[V76.exam-ple.co~m]", "[v76.exam-ple.co~m]", "v76.exam-ple.co~m")]
+        [DataRow("ftp://user:passwd@[v76.e:x:a:m:p:l:e.com]:8080",
+            "user:passwd@[v76.e:x:a:m:p:l:e.com]:8080",
+            "v76.e:x:a:m:p:l:e.com")
+        ]
+        [DataRow("ftp://user:passwd@[vAB.e:x:a:m:p:l:e.com]:8080",
+            "user:passwd@[vab.e:x:a:m:p:l:e.com]:8080",
+            "vab.e:x:a:m:p:l:e.com")
+        ]
+        [DataRow("ftp://user:passwd@[VAB.e:x:a:m:p:l:e.com]:8080",
+            "user:passwd@[vab.e:x:a:m:p:l:e.com]:8080",
+            "vab.e:x:a:m:p:l:e.com")
+        ]
+        public void FromString_ValidIpLiteralIpVFuture_ReturnsValidHostAndAuthority(
+            string uriString,
+            string authority,
+            string host)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual(authority, uri.Authority);
+            Assert.AreEqual(host, uri.Host);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://[v76.example.com")]
+        [DataRow("https://[v76.example.com/")]
+        [DataRow("https://[v76.example.com:8080/")]
+        [DataRow("https://[v76.example.com:8080")]
+        [DataRow("https://user@[v76.example.com:8080")]
+        [DataRow("https://user@[1111:2222:3333:4444:5555:6666:7777:8888")]
+        [DataRow("https://user@[1111:2222:3333:4444:5555:6666:7777:8888/")]
+        [DataRow("https://user@[1111:2222:3333::7777:8888/")]
+        public void FromString_InvalidIpLiteral_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("ftp://[1111:2222:3333:4444:5555:6666:7777:8888]/",
+            "[1111:2222:3333:4444:5555:6666:7777:8888]",
+            "1111:2222:3333:4444:5555:6666:7777:8888")
+        ]
+        [DataRow("https://[1111:2222:3333:4444:5555:6666:7777:8888]/foo/bat",
+            "[1111:2222:3333:4444:5555:6666:7777:8888]",
+            "1111:2222:3333:4444:5555:6666:7777:8888")
+        ]
+        [DataRow("ftp://[1:22:3333:4444:555:66:7777:88]",
+            "[1:22:3333:4444:555:66:7777:88]",
+            "1:22:3333:4444:555:66:7777:88")
+        ]
+        [DataRow("ftp://[1:2a2:3333:4444:5BB5:66:eeFF:88]",
+            "[1:2a2:3333:4444:5bb5:66:eeff:88]",
+            "1:2a2:3333:4444:5bb5:66:eeff:88")
+        ]
+        [DataRow("ftp://user:passwd@[1:2a2:3333:4444:5BB5:66:eeFF:88]:8080",
+            "user:passwd@[1:2a2:3333:4444:5bb5:66:eeff:88]:8080",
+            "1:2a2:3333:4444:5bb5:66:eeff:88")
+        ]
+        [DataRow("ftp://user:passwd@[1:2a2:0:004:0000:00:eeFF:88]:8080",
+            "user:passwd@[1:2a2:0:4:0:0:eeff:88]:8080",
+            "1:2a2:0:4:0:0:eeff:88")
+        ]
+        [DataRow("ftp://user:passwd@[1::0eff:88]:8080",
+            "user:passwd@[1::eff:88]:8080",
+            "1::eff:88")
+        ]
+        [DataRow("ftp://user:passwd@[1::]:8080",
+            "user:passwd@[1::]:8080",
+            "1::")
+        ]
+        [DataRow("ftp://user:passwd@[::1]:8080",
+            "user:passwd@[::1]:8080",
+            "::1")
+        ]
+        [DataRow("ftp://user:passwd@[::]:8080",
+            "user:passwd@[::]:8080",
+            "::")
+        ]
+        public void FromString_ValidIpV6Address_ReturnsValidHostAndAuthority(
+            string uriString,
+            string authority,
+            string host)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual(authority, uri.Authority);
+            Assert.AreEqual(host, uri.Host);
+        }
+
+        [DataTestMethod]
+        [DataRow("ftp://[1111:2222:33333:4444:5555:6666:7777:8888]/")]
+        [DataRow("ftp://[:2222:3333:4444:5555:6666:7777:8888]/")]
+        [DataRow("ftp://[1:2222:3333:4444:5555:6666:7777:]/")]
+        [DataRow("ftp://[11:2222:::5555:6666:7777:8888]/")]
+        [DataRow("ftp://[:22:3333:4444:555:66:7777:88]")]
+        [DataRow("ftp://[1:00000:3333:4444:5BB5:66:eeFF:88]")]
+        [DataRow("ftp://user:passwd@[:]:8080")]
+        [DataRow("ftp://user:passwd@[1::0:004:0000::eeFF:88]:8080")]
+        [DataRow("ftp://user:passwd@[1::34G:88]:8080")]
+        public void FromString_InValidIpV6Address_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("ftp://127.0.0.1/", "127.0.0.1", "127.0.0.1")]
+        [DataRow("ftp://255.255.255.255/", "255.255.255.255", "255.255.255.255")]
+        [DataRow("ftp://user.passwd@255.255.255.255/", "user.passwd@255.255.255.255", "255.255.255.255")]
+        [DataRow("ftp://@255.255.255.255:8080/", "@255.255.255.255:8080", "255.255.255.255")]
+        [DataRow("ftp://@0.0.0.0:8080/", "@0.0.0.0:8080", "0.0.0.0")]
+        public void FromString_ValidIpV4Address_ReturnsValidHostAndAuthority(
+            string uriString,
+            string authority,
+            string host)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual(authority, uri.Authority);
+            Assert.AreEqual(host, uri.Host);
+        }
+
+        [DataTestMethod]
+        [DataRow("ftp://[127.0.0.1]/")]
+        public void FromString_InValidIpV4Address_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
     }
 }
