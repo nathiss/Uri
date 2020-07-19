@@ -305,5 +305,27 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.AreEqual("example.com", uri.Host);
             Assert.AreEqual("8080", uri.Port);
         }
+
+        [TestMethod]
+        public void FromString_SchemeWithoutEndingColon_ReturnsNull()
+        {
+            // Act
+            var uri = Uri.FromString("https");
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_AuthorityMixedCapitalization_AuthorityNormalizedAndHostNormalized()
+        {
+            // Act
+            var uri = Uri.FromString("ssh://USER:Passwd@EXAMple.UK.com/");
+
+            // Assert
+            Assert.AreEqual("USER:Passwd@example.uk.com", uri.Authority);
+            Assert.AreEqual("USER:Passwd", uri.UserInformation);
+            Assert.AreEqual("example.uk.com", uri.Host);
+        }
     }
 }

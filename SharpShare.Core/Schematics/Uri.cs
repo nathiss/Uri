@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using SharpShare.Core.Utils;
 
 namespace SharpShare.Core.Schematics
@@ -50,15 +51,30 @@ namespace SharpShare.Core.Schematics
                 var uri = new Uri {Scheme = scheme.Scheme};
 
                 var authority = ParseAuthority(uriString, scheme.Offset);
-                uri.Authority = authority.Authority;
 
-                var userInformation = ParseUserInformation(uri.Authority);
-                uri.UserInformation = userInformation.UserInformation;
+                if (authority.Authority != null)
+                {
+                    var authorityBuilder = new StringBuilder();
 
-                var host = ParseHost(uri.Authority, userInformation.Offset);
-                uri.Host = host.Host;
+                    var userInformation = ParseUserInformation(authority.Authority);
+                    uri.UserInformation = userInformation.UserInformation;
+                    if (uri.UserInformation != null)
+                    {
+                        authorityBuilder.Append(uri.UserInformation).Append('@');
+                    }
 
-                uri.Port = ParsePort(uri.Authority, host.Offset);
+                    var host = ParseHost(authority.Authority, userInformation.Offset);
+                    uri.Host = host.Host;
+                    authorityBuilder.Append(uri.Host);
+
+                    uri.Port = ParsePort(authority.Authority, host.Offset);
+                    if (uri.Port != null)
+                    {
+                        authorityBuilder.Append(':').Append(uri.Port);
+                    }
+
+                    uri.Authority = authorityBuilder.ToString();
+                }
 
                 var path = ParsePath(uriString, authority.Offset, uri.Authority != null);
                 uri.Path = path.Path;
