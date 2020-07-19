@@ -255,7 +255,7 @@ namespace SharpShare.Core.Tests.Schematics
             var uri = Uri.FromString("https://example.com:8080/");
 
             // Assert
-            Assert.AreEqual("8080", uri.Port);
+            Assert.AreEqual(8080, uri.Port);
         }
 
         [TestMethod]
@@ -265,7 +265,7 @@ namespace SharpShare.Core.Tests.Schematics
             var uri = Uri.FromString("https://example.com:/");
 
             // Assert
-            Assert.AreEqual(null, uri.Port);
+            Assert.AreEqual(0, uri.Port);
         }
 
         [TestMethod]
@@ -289,7 +289,7 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.AreEqual("user@example.com:80", uri.Authority);
             Assert.AreEqual("user", uri.UserInformation);
             Assert.AreEqual("example.com", uri.Host);
-            Assert.AreEqual("80", uri.Port);
+            Assert.AreEqual(80, uri.Port);
         }
 
         [TestMethod]
@@ -303,7 +303,7 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.AreEqual("user:passwd@example.com:8080", uri.Authority);
             Assert.AreEqual("user:passwd", uri.UserInformation);
             Assert.AreEqual("example.com", uri.Host);
-            Assert.AreEqual("8080", uri.Port);
+            Assert.AreEqual(8080, uri.Port);
         }
 
         [TestMethod]
@@ -326,6 +326,151 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.AreEqual("USER:Passwd@example.uk.com", uri.Authority);
             Assert.AreEqual("USER:Passwd", uri.UserInformation);
             Assert.AreEqual("example.uk.com", uri.Host);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/")]
+        [DataRow("https:example/:com")]
+        [DataRow("a:")]
+        public void HasScheme_UriHasScheme_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasScheme);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/")]
+        [DataRow("https://example:12")]
+        [DataRow("a://a")]
+        public void HasAuthority_UriHasAuthority_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasAuthority);
+        }
+
+        [DataTestMethod]
+        [DataRow("https:example/com/foo")]
+        [DataRow("https:")]
+        [DataRow("a:#target")]
+        public void HasAuthority_UriDoesNotHaveAuthority_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasAuthority);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com/")]
+        [DataRow("https://yser:passwd@example:12")]
+        [DataRow("a://@a")]
+        public void HasUserInformation_UriHasUserInformation_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasUserInformation);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/")]
+        [DataRow("https://yser.passwd.example:12")]
+        [DataRow("a://a")]
+        public void HasUserInformation_UriDoesNotHaveUserInformation_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasUserInformation);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com:/")]
+        [DataRow("https://yser:passwd@a:12")]
+        [DataRow("a://a")]
+        public void HasHost_UriHasHost_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasHost);
+        }
+
+        [DataTestMethod]
+        [DataRow("https:user")]
+        [DataRow("https:#target")]
+        [DataRow("a:")]
+        public void HasHost_UriDoesNotHaveHost_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasHost);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com:/")]
+        [DataRow("https://yser:passwd@a:12")]
+        [DataRow("a://a:")]
+        public void HasPort_UriHasPort_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasPort);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com/")]
+        [DataRow("https://yser:passwd@a")]
+        [DataRow("a://@a")]
+        public void HasPort_UriDoesNotHavePort_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasPort);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com:12")]
+        [DataRow("https://yser:passwd@a:12")]
+        [DataRow("a://a")]
+        public void HasEmptyPath_UriHasEmptyPath_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasEmptyPath);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://user@example.com:12/")]
+        [DataRow("https://yser:passwd@a:12/foo")]
+        [DataRow("a:a")]
+        [DataRow("a://a/foo/bar/")]
+        [DataRow("a:sdffd/")]
+        public void HasEmptyPath_UriHasNonEmptyPath_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasEmptyPath);
         }
     }
 }

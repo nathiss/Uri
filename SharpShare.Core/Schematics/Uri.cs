@@ -58,7 +58,7 @@ namespace SharpShare.Core.Schematics
 
                     var userInformation = ParseUserInformation(authority.Authority);
                     uri.UserInformation = userInformation.UserInformation;
-                    if (uri.UserInformation != null)
+                    if (uri.HasUserInformation)
                     {
                         authorityBuilder.Append(uri.UserInformation).Append('@');
                     }
@@ -68,7 +68,7 @@ namespace SharpShare.Core.Schematics
                     authorityBuilder.Append(uri.Host);
 
                     uri.Port = ParsePort(authority.Authority, host.Offset);
-                    if (uri.Port != null)
+                    if (uri.HasPort)
                     {
                         authorityBuilder.Append(':').Append(uri.Port);
                     }
@@ -98,11 +98,25 @@ namespace SharpShare.Core.Schematics
         public string Scheme { get; private set; }
 
         /// <summary>
+        /// This property returns an indication of whether or not the URI has a Scheme component.
+        /// </summary>
+        /// <value>
+        /// The value of this property will always be true since the Scheme is a required
+        /// component of the URI.
+        /// </value>
+        public bool HasScheme => Scheme != null;
+
+        /// <summary>
         /// This property represents the Authority of a URI. If the authority component was
         /// not present in the URI, the value of this property will be null.
         /// </summary>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2">RFC 3986 (Section 3.2)</seealso>
         public string Authority { get; private set; }
+
+        /// <summary>
+        /// This property returns an indication of whether or not the URI has an Authority component.
+        /// </summary>
+        public bool HasAuthority => Authority != null;
 
         /// <summary>
         /// This property represents the User Information of a URI. If the user information
@@ -112,6 +126,11 @@ namespace SharpShare.Core.Schematics
         public string UserInformation { get; private set; }
 
         /// <summary>
+        /// This property returns an indication of whether or not the URI has a UserInformation component.
+        /// </summary>
+        public bool HasUserInformation => UserInformation != null;
+
+        /// <summary>
         /// This property represents the Host of a URI. If the host component was not present
         /// in the URI, the value of this property will be null.
         /// </summary>
@@ -119,11 +138,25 @@ namespace SharpShare.Core.Schematics
         public string Host { get; private set; }
 
         /// <summary>
-        /// This property represents the Port of a URI. If the port component was not present
-        /// in the URI, the value of this property will be null.
+        /// This property returns an indication of whether or not the URI has a Host component.
         /// </summary>
+        public bool HasHost => Host != null;
+
+        /// <summary>
+        /// This property represents the Port of a URI. If the port component was not present
+        /// in the URI, the value of this property will be -1.
+        /// </summary>
+        /// <value>
+        /// If the Port component of the URI is present but empty, the value of this property
+        /// is zero.
+        /// </value>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
-        public string Port { get; private set; }
+        public int Port { get; private set; }
+
+        /// <summary>
+        /// This property returns an indication of whether or not the URI has a Port component.
+        /// </summary>
+        public bool HasPort => Port != -1;
 
         /// <summary>
         /// This property represents the Path of a URI. If the path component of the URI
@@ -135,6 +168,11 @@ namespace SharpShare.Core.Schematics
         /// </remarks>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.3">RFC 3986 (Section 3.3)</seealso>
         public IList<string> Path { get; private set; }
+
+        /// <summary>
+        /// This property returns an indication of whether or not the Path component of the URI is empty.
+        /// </summary>
+        public bool HasEmptyPath => Path.Count == 0;
 
         /// <summary>
         /// This is the default constructor of the <see cref="Uri"/> class.
@@ -314,12 +352,10 @@ namespace SharpShare.Core.Schematics
             }
 
             var endOfHost = authority.IndexOf(':', offset);
-            if (endOfHost == -1)
-            {
-                return (hostString, authority.Length);
-            }
 
-            return (authority.Substring(offset, endOfHost - offset), endOfHost + 1);
+            return endOfHost == -1 ?
+                (hostString, authority.Length) :
+                (authority.Substring(offset, endOfHost - offset), endOfHost + 1);
         }
 
         private static IList<char> UserInformationAllowedCharacters { get; } = new List<char>
@@ -344,40 +380,44 @@ namespace SharpShare.Core.Schematics
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the port of
         /// the URI, if the URI does not have the authority component this method will return
-        ///  null.
+        ///  -1. If the Port component of the URI is empty, this method will return 0.
         /// </summary>
         /// <param name="authority">
-        /// This is the authority component of the URI. If this parameter is equal to null,
-        /// it means that the URI does not have the authority component.
+        /// This is the authority component of the URI. This parameter must not be null.
         /// </param>
         /// <param name="offset">
         /// This is the offset of the given <paramref name="authority"/> after which the
         /// lookout will be performed. If the offset is greater or equal to the length
         /// of <paramref name="authority"/> and the URI has the authority component,
-        /// this method will return  null.
+        /// this method will return -1.
         /// </param>
         /// <returns>
-        /// A string representing the port component of the URI is returned.
+        /// A integer representing the port component of the URI is returned.
         /// </returns>
         /// <exception cref="InvalidUriException">
         /// If the port component of the URI contains non-digit character an exception of
         /// this type is thrown.
         /// </exception>
-        private static string ParsePort(string authority, int offset)
+        private static int ParsePort(string authority, int offset)
         {
-            if (string.IsNullOrWhiteSpace(authority) || offset >= authority.Length)
+            if (offset >= authority.Length)
             {
-                return null;
+                if (authority[offset - 1] == ':')
+                {
+                    return 0;
+                }
+
+                return -1;
             }
 
             var portString = authority.Substring(offset);
 
-            if (!int.TryParse(portString, out _))
+            if (!int.TryParse(portString, out var port))
             {
                 throw new InvalidUriException();
             }
 
-            return portString;
+            return port;
         }
 
         /// <summary>
