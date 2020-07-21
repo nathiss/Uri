@@ -6,10 +6,9 @@
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpShare.Core.Schematics;
+using SharpShare.Core.Schematics.Uri;
 
 namespace SharpShare.Core.Tests.Schematics
 {
