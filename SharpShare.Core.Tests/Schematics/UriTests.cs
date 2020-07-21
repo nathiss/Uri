@@ -6,6 +6,7 @@
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpShare.Core.Schematics;
@@ -21,6 +22,8 @@ namespace SharpShare.Core.Tests.Schematics
         [DataRow("https://www.example.com", "https", "www.example.com", new string[] {})]
         [DataRow("ssh://a.com/foo/bar", "ssh", "a.com", new [] {"", "foo", "bar"})]
         [DataRow("ss+h://a.com/foo/bar", "ss+h", "a.com", new [] {"", "foo", "bar"})]
+        [DataRow("mailto:John.Doe@example.com", "mailto", null, new [] {"John.Doe@example.com"})]
+        [DataRow("tel:+1-816-555-1212", "tel", null, new [] {"+1-816-555-1212"})]
         public void FromString_ReceivedValidUri_UriParsedProperly(
             string uriString,
             string scheme,
@@ -358,7 +361,7 @@ namespace SharpShare.Core.Tests.Schematics
         [DataTestMethod]
         [DataRow("https:example/com/foo")]
         [DataRow("https:")]
-        [DataRow("a:#target")]
+        [DataRow("a:#Fragment")]
         public void HasAuthority_UriDoesNotHaveAuthority_ReturnsFalse(string uriString)
         {
             // Act
@@ -409,7 +412,7 @@ namespace SharpShare.Core.Tests.Schematics
 
         [DataTestMethod]
         [DataRow("https:user")]
-        [DataRow("https:#target")]
+        [DataRow("https:#Fragment")]
         [DataRow("a:")]
         public void HasHost_UriDoesNotHaveHost_ReturnsFalse(string uriString)
         {
@@ -688,6 +691,224 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.AreEqual(host, uri.Host);
             Assert.IsFalse(uri.HasPort);
             Assert.IsTrue(path.SequenceEqual(uri.Path));
+        }
+
+        [DataTestMethod]
+        [DataRow("https://www.example.com/index.html?query", "query")]
+        [DataRow("https://www.example.com/index.html?key=value", "key=value")]
+        [DataRow("https://www.example.com/index.html?key=value#Fragment", "key=value")]
+        [DataRow("https://www.example.com/index.html?key=v/a/l/u/e#Fragment", "key=v/a/l/u/e")]
+        [DataRow("https://www.example.com/index.html?", "")]
+        [DataRow("https://www.example.com/index.html?#", "")]
+        [DataRow("https://www.example.com/index.html??#", "?")]
+        [DataRow("https://www.example.com/index.html?key=?value#", "key=?value")]
+        public void FromString_UriWithQueryComponent_ReturnsValidObject(
+            string uriString,
+            string query)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual(query, uri.QueryString);
+        }
+
+        [DataTestMethod]
+        [DataRow("tel:+14-456-312-455?[")]
+        [DataRow("https://example.com/path/?key=[")]
+        [DataRow("https://example.com/path/?key=val\"ue")]
+
+        public void FromString_QueryWithNotAllowedChars_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [TestMethod]
+        public void FromString_UriWithEmptyQuery_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com?");
+
+            // Assert
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual(string.Empty, uri.QueryString);
+            Assert.AreEqual(0, uri.Query.Count);
+        }
+
+        [TestMethod]
+        public void FromString_UriKeyValueQuery_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com?key1=value1&key2=value2#key=value3");
+
+            // Assert
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("key1=value1&key2=value2", uri.QueryString);
+            Assert.AreEqual(2, uri.Query.Count);
+            Assert.AreEqual("key1", uri.Query[0].Key);
+            Assert.AreEqual("value1", uri.Query[0].Value);
+            Assert.AreEqual("key2", uri.Query[1].Key);
+            Assert.AreEqual("value2", uri.Query[1].Value);
+        }
+
+        [TestMethod]
+        public void FromString_QueryWithOnlyKeys_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com?key1&key2#key3");
+
+            // Assert
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("key1&key2", uri.QueryString);
+            Assert.AreEqual(2, uri.Query.Count);
+            Assert.AreEqual("key1", uri.Query[0].Key);
+            Assert.AreEqual(null, uri.Query[0].Value);
+            Assert.AreEqual("key2", uri.Query[1].Key);
+            Assert.AreEqual(null, uri.Query[0].Value);
+        }
+
+        [TestMethod]
+        public void FromString_QueryWithKeysAndEmptyValues_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com?key1=&key2=#key3=");
+
+            // Assert
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("key1=&key2=", uri.QueryString);
+            Assert.AreEqual(2, uri.Query.Count);
+            Assert.AreEqual("key1", uri.Query[0].Key);
+            Assert.AreEqual(string.Empty, uri.Query[0].Value);
+            Assert.AreEqual("key2", uri.Query[1].Key);
+            Assert.AreEqual(string.Empty, uri.Query[0].Value);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/path?key=value")]
+        [DataRow("https://example.com/path?key")]
+        [DataRow("https://example.com/path?key=")]
+        [DataRow("https://example.com/path?key1&key2")]
+        [DataRow("https://example.com/path?")]
+        [DataRow("https://example.com/path?#")]
+        [DataRow("https://example.com/path??#")]
+        [DataRow("https://example.com/path?=value#")]
+        [DataRow("https:///path?=value")]
+        [DataRow("x:path?=value")]
+        [DataRow("x:path?#")]
+        public void HasQuery_UriHasQueryComponent_ReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasQuery);
+        }
+
+        [DataTestMethod]
+        [DataRow("https:")]
+        [DataRow("https://user&passwd@example.com/#")]
+        [DataRow("https://user&passwd@example.com/")]
+        [DataRow("https://user&passwd@exam&ple.com/")]
+        [DataRow("https://user&passwd@exam&ple.com:8080/")]
+        [DataRow("https://user&passwd@exam&ple.com:/#")]
+        [DataRow("https://user&passwd@exam&ple.com:8080/#")]
+        public void HasQuery_UriDoesNotHaveQueryComponent_ReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasQuery);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/path?key1=value1#Fragment", "Fragment")]
+        [DataRow("https://example.com/path#Fragment", "Fragment")]
+        [DataRow("https:///#foo", "foo")]
+        [DataRow("https:///#bar?", "bar?")]
+        [DataRow("https:///#/", "/")]
+        [DataRow("https:///#", "")]
+        [DataRow("a:///#path/foo", "path/foo")]
+        [DataRow("a://example.com/path#?key=value", "?key=value")]
+        [DataRow("a://example.com/path#", "")]
+        public void FromString_UriHasFragment_ReturnsValidObject(
+            string uriString,
+            string fragment)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.AreEqual(fragment, uri.Fragment);
+        }
+
+
+        [DataTestMethod]
+        [DataRow("https://example.com/path?key1=value1#Fragment")]
+        [DataRow("https://example.com/path#Fragment")]
+        [DataRow("https:///#foo")]
+        [DataRow("https:///#bar?")]
+        [DataRow("https:///#/")]
+        [DataRow("https:///#")]
+        [DataRow("a:///#path/foo")]
+        [DataRow("a://example.com/path#?key=value")]
+        [DataRow("a://example.com/path#")]
+        public void HasFragment_UriHasFragment_HasFragmentReturnsTrue(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsTrue(uri.HasFragment);
+        }
+
+        [DataTestMethod]
+        [DataRow("https:///")]
+        [DataRow("a:///path/foo")]
+        [DataRow("a://example.com/path?key=value")]
+        [DataRow("a://example.com/path")]
+        public void FromString_UriDoesNotHaveFragment_ReturnsValidObject(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.AreEqual(null, uri.Fragment);
+        }
+
+        [DataTestMethod]
+        [DataRow("https:///")]
+        [DataRow("a:///path/foo")]
+        [DataRow("a://example.com/path?key=value")]
+        [DataRow("a://example.com/path")]
+        public void HasFragment_UriDoesNotHaveFragment_HasFragmentReturnsFalse(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsFalse(uri.HasFragment);
+        }
+
+        [DataTestMethod]
+        [DataRow("tel:+14-456-312-455?#[")]
+        [DataRow("https://example.com/path/?key=#asf[")]
+        [DataRow("https://example.com/path/?#key=val\"ue")]
+        [DataRow("https://example.com/path/?#key=val{ue")]
+
+        public void FromString_FragmentWithNotAllowedChars_ReturnsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
         }
     }
 }

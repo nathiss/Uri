@@ -43,7 +43,7 @@ namespace SharpShare.Core.Schematics
 
             try
             {
-                var scheme = ParseScheme(uriString);
+                var scheme = GetSchemeComponent(uriString);
                 if (scheme.Scheme == null)
                 {
                     return null;
@@ -51,20 +51,20 @@ namespace SharpShare.Core.Schematics
 
                 var uri = new Uri {Scheme = scheme.Scheme};
 
-                var authority = ParseAuthority(uriString, scheme.Offset);
+                var authority = GetAuthorityComponent(uriString, scheme.Offset);
 
                 if (authority.Authority != null)
                 {
                     var authorityBuilder = new StringBuilder();
 
-                    var userInformation = ParseUserInformation(authority.Authority);
+                    var userInformation = GetUserInformationComponent(authority.Authority);
                     uri.UserInformation = userInformation.UserInformation;
                     if (uri.HasUserInformation)
                     {
                         authorityBuilder.Append(uri.UserInformation).Append('@');
                     }
 
-                    var host = ParseHost(authority.Authority, userInformation.Offset);
+                    var host = GetHostComponent(authority.Authority, userInformation.Offset);
                     uri.Host = host.Host;
                     if (host.IsIpLiteral)
                     {
@@ -75,7 +75,7 @@ namespace SharpShare.Core.Schematics
                         authorityBuilder.Append(uri.Host);
                     }
 
-                    uri.Port = ParsePort(authority.Authority, host.Offset);
+                    uri.Port = GetPortComponent(authority.Authority, host.Offset);
                     if (uri.HasPort)
                     {
                         authorityBuilder.Append(':').Append(uri.Port);
@@ -84,8 +84,14 @@ namespace SharpShare.Core.Schematics
                     uri.Authority = authorityBuilder.ToString();
                 }
 
-                var path = ParsePath(uriString, authority.Offset, uri.Authority != null);
+                var path = GetPathComponent(uriString, authority.Offset, uri.Authority != null);
                 uri.Path = path.Path;
+
+                var query = GetQueryComponent(uriString, path.Offset);
+                uri.QueryString = query.Query;
+                uri.Query = ParseQuery(uri.QueryString);
+
+                uri.Fragment = GetFragmentComponent(uriString, query.Offset);
 
                 return uri;
             }
@@ -183,6 +189,50 @@ namespace SharpShare.Core.Schematics
         public bool HasEmptyPath => Path.Count == 0;
 
         /// <summary>
+        /// This property represents the Query component of a URI. If the component was not present
+        /// in the URI, then the value of this property is null.
+        /// </summary>
+        /// <remarks>
+        /// If the Query component is present but empty, the URI this property is
+        /// <seealso cref="string.Empty"/>.
+        /// </remarks>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
+        public string QueryString { get; private set; }
+
+        /// <summary>
+        /// This property returns an indication of whether or not the URI has the Query component.
+        /// </summary>
+        public bool HasQuery => QueryString != null;
+
+        /// <summary>
+        /// This property represents the Query component of the URI parsed into key-values pairs.
+        /// </summary>
+        /// <value>
+        /// Inside a Query component two values can have the same key.
+        /// If the URI doesn't have a Query component, the value of this property is null.
+        /// If the URI have a Query component, but it's empty, the value of this property is a
+        /// collection of zero elements.
+        /// </value>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
+        public IReadOnlyList<KeyValuePair<string, string>> Query { get; private set; }
+
+        /// <summary>
+        /// This property represents the Fragment component of the URI. If the URI does not have the Fragment
+        /// component, then the value of this property is null.
+        /// </summary>
+        /// <value>
+        /// If the Fragment component is present but empty, the value of this property is
+        /// <seealso cref="string.Empty"/>.
+        /// </value>
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.5">RFC 3986 (Section 3.5)</seealso>
+        public string Fragment { get; private set; }
+
+        /// <summary>
+        /// This property returns an indication of whether or not the URI has the Fragment component.
+        /// </summary>
+        public bool HasFragment => Fragment != null;
+
+        /// <summary>
         /// This is the default constructor of the <see cref="Uri"/> class.
         /// Since this constructor is private the only was of create a new <see cref="Uri"/>
         /// object is through <see cref="FromString"/> static method.
@@ -202,7 +252,7 @@ namespace SharpShare.Core.Schematics
         /// if the URI does not contain the scheme, which is an equivalent of being
         /// ill-formed, a pair of null and -1 is returned.
         /// </returns>
-        private static (string Scheme, int Offset) ParseScheme(string uriString)
+        private static (string Scheme, int Offset) GetSchemeComponent(string uriString)
         {
             if (uriString.Length == 0 || !char.IsLetter(uriString[0]))
             {
@@ -259,10 +309,10 @@ namespace SharpShare.Core.Schematics
         /// </returns>
         /// <remarks>
         /// This method does not check if the authority component of the URI has only permitted
-        /// characters. Though <see cref="ParseUserInformation"/>, <see cref="ParseHost"/> and
-        /// <see cref="ParsePort"/> does so for their components.
+        /// characters. Though <see cref="GetUserInformationComponent"/>, <see cref="GetHostComponent"/> and
+        /// <see cref="GetPortComponent"/> does so for their components.
         /// </remarks>
-        private static (string Authority, int Offset) ParseAuthority(string uriString, int offset)
+        private static (string Authority, int Offset) GetAuthorityComponent(string uriString, int offset)
         {
             try
             {
@@ -298,7 +348,7 @@ namespace SharpShare.Core.Schematics
         /// If the given <paramref name="authority"/> string is null, this method returns a pair of
         /// null and zero.
         /// </returns>
-        private static (string UserInformation, int Offset) ParseUserInformation(string authority)
+        private static (string UserInformation, int Offset) GetUserInformationComponent(string authority)
         {
             if (string.IsNullOrWhiteSpace(authority))
             {
@@ -386,7 +436,7 @@ namespace SharpShare.Core.Schematics
         /// </item>
         /// </list>
         /// </exception>
-        private static (string Host, int Offset, bool IsIpLiteral) ParseHost(string authority, int offset)
+        private static (string Host, int Offset, bool IsIpLiteral) GetHostComponent(string authority, int offset)
         {
             // If the authority component is present, then the host component is mandatory, though
             // it might be empty.
@@ -714,7 +764,7 @@ namespace SharpShare.Core.Schematics
         /// If the port component of the URI contains non-digit character an exception of
         /// this type is thrown.
         /// </exception>
-        private static int ParsePort(string authority, int offset)
+        private static int GetPortComponent(string authority, int offset)
         {
             if (string.IsNullOrWhiteSpace(authority))
             {
@@ -779,12 +829,15 @@ namespace SharpShare.Core.Schematics
         /// </item>
         /// </list>
         /// </exception>
-        private static (IList<string> Path, int Offset) ParsePath(string uriString, int offset, bool hasAuthority)
+        private static (IList<string> Path, int Offset) GetPathComponent(string uriString, int offset, bool hasAuthority)
         {
             if (offset >= uriString.Length)
             {
                 return (new List<string>(), offset);
             }
+
+            var endOfPath = uriString.IndexOfAny(new[] {'?', '#'}, offset);
+            var newOffset = endOfPath == -1 ? uriString.Length : endOfPath;
 
             if (hasAuthority)
             {
@@ -799,14 +852,13 @@ namespace SharpShare.Core.Schematics
                     throw new InvalidUriException();
                 }
 
-                var endOfPath = uriString.IndexOfAny(new[] {'?', '#'}, offset);
                 var pathString = endOfPath == -1
                     ? uriString.Substring(offset)
                     : uriString.Substring(offset, endOfPath - offset);
 
                 if (pathString == "/")
                 {
-                    return (new List<string> {""}, endOfPath);
+                    return (new List<string> {""}, newOffset);
                 }
 
                 if (!pathString.All(ch => PathAllowedCharacters.Contains(ch)))
@@ -826,7 +878,7 @@ namespace SharpShare.Core.Schematics
                     }
                 }
 
-                return (pathSegments, endOfPath - offset);
+                return (pathSegments, newOffset);
             }
 
             // "Path component cannot begin with two slashes ("//")."
@@ -834,7 +886,6 @@ namespace SharpShare.Core.Schematics
             // possible since if the URI string contains two slashes after the scheme
             // component we're treating the following as an authority component.
             {
-                var endOfPath = uriString.IndexOfAny(new[] {'?', '#'}, offset);
                 var pathString = endOfPath == -1
                     ? uriString.Substring(offset)
                     : uriString.Substring(offset, endOfPath - offset);
@@ -852,13 +903,13 @@ namespace SharpShare.Core.Schematics
                     throw new InvalidUriException();
                 }
 
-                return (pathSegments, endOfPath);
+                return (pathSegments, newOffset);
             }
         }
 
         /// <summary>
         /// This collection contains all possible characters that can be used inside a
-        /// path component.
+        /// Path component.
         /// </summary>
         private static readonly HashSet<char> PathAllowedCharacters = new HashSet<char>
         {
@@ -869,7 +920,7 @@ namespace SharpShare.Core.Schematics
             // Unreserved
 
             // Alpha lowercase
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 
             // Alpha uppercase
@@ -887,11 +938,209 @@ namespace SharpShare.Core.Schematics
 
             // sub-delims
 
-            '!', '$' , '&' , '\'' , '(' , ')' , '*' , '+' , ',' , ';' , '=',
+            '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=',
 
             ':', '@'
         };
+
+        /// <summary>
+        /// This method parses the given <paramref name="uriString"/> and returns the query of
+        /// the URI, if the URI does not have the query component this method will return
+        ///  a pair of null and an offset equal to the given <paramref name="offset"/>.
+        /// If the Query component of the URI is empty, this method will return a pair of
+        /// <see cref="string.Empty"/> and an offset equal to the given <paramref name="offset"/>.
+        /// </summary>
+        /// <param name="uriString">
+        /// This is the string representation of the URI. This parameter must not be null.
+        /// </param>
+        /// <param name="offset">
+        /// This is the offset of the given <paramref name="uriString"/> after which the
+        /// lookout will be performed. If the offset is greater or equal to the length
+        /// of <paramref name="uriString"/> this method will return a pair of null and an
+        /// offset equal to the given <paramref name="offset"/>.
+        /// </param>
+        /// <returns>
+        /// A pair of the string representation of the Query component and an offset
+        /// of the rest of the <paramref name="uriString"/> is returned.
+        /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// If the query component contains not allowed characters an exception of this type
+        /// is thrown.
+        /// </exception>
+        private static (string Query, int Offset) GetQueryComponent(string uriString, int offset)
+        {
+            if (offset >= uriString.Length || uriString[offset] != '?')
+            {
+                return (null, offset);
+            }
+
+            var endOfQuery = uriString.IndexOf('#', offset + 1);
+
+            var query = endOfQuery == -1
+                ? (uriString.Substring(offset + 1), uriString.Length)
+                : (uriString.Substring(offset + 1, endOfQuery - offset - 1), endOfQuery);
+
+            if (!query.Item1.All(ch => QueryAllowedCharacters.Contains(ch)))
+            {
+                throw new InvalidUriException();
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        /// This collection contains all possible characters that can be used inside a Query
+        /// component.
+        /// </summary>
+        private static readonly HashSet<char> QueryAllowedCharacters = new HashSet<char>
+        {
+            // PCHAR
+
+            // Unreserved
+
+            // Alpha lowercase
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+
+            // Alpha uppercase
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+
+            // Digit
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+
+            '-', '.', '_', '~',
+
+            // Percent-Encoded
+
+            '%', 'A', 'B', 'C', 'D', 'E', 'F',
+
+            // sub-delims
+
+            '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=',
+
+            '/', '?',
+        };
+
+        /// <summary>
+        /// This method parses the given <paramref name="query"/> component and return a collection
+        /// of key-value pairs.
+        /// </summary>
+        /// <param name="query">
+        /// This is the query component of the URI. The Query component must be well-formed.
+        /// </param>
+        /// <returns>
+        /// A collection of key-value pairs representing the URI's query component is returned.
+        /// If the URI doesn't have the Query component this method returns null.
+        /// If the Query component of the URI is empty, this method returns a collection of zero
+        /// elements.
+        /// </returns>
+        /// <remarks>
+        /// If a key-value element of the Query component has more than one equal sign ("="), then
+        /// the first occurence of the equal sign will be treated as a separator and the others as
+        /// a part of value.
+        /// </remarks>
+        private static IReadOnlyList<KeyValuePair<string, string>> ParseQuery(string query)
+        {
+            if (query == null)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return new List<KeyValuePair<string, string>>();
+            }
+
+            return query
+                .Split('&')
+                .Select(keyValueString => keyValueString.Split('=', 2))
+                .Select(
+                    keyValuePair => keyValuePair.Length == 1
+                        ? new KeyValuePair<string, string>(keyValuePair[0], null)
+                        : new KeyValuePair<string, string>(keyValuePair[0], keyValuePair[1])
+                )
+                .ToList();
+        }
+
+        /// <summary>
+        /// This method parses the given <paramref name="uriString"/> and returns the Fragment of
+        /// the URI, if the URI does not have the Fragment component this method will return null.
+        /// If the Fragment component of the URI is empty, this method will return
+        /// <see cref="string.Empty"/>.
+        /// </summary>
+        /// <param name="uriString">
+        /// This is the string representation of the URI. This parameter must not be null.
+        /// </param>
+        /// <param name="offset">
+        /// This is the offset of the given <paramref name="uriString"/> after which the
+        /// lookout will be performed. If the offset is greater or equal to the length
+        /// of <paramref name="uriString"/> this method will return null.
+        /// </param>
+        /// <returns>
+        /// A string representation of the Fragment component is returned.
+        /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// If the Fragment component contains not allowed characters an exception of this type
+        /// is thrown.
+        /// </exception>
+        private static string GetFragmentComponent(string uriString, int offset)
+        {
+            if (offset >= uriString.Length)
+            {
+                return null;
+            }
+
+            if (uriString[offset] != '#')
+            {
+                return null;
+            }
+
+            var targetString = uriString.Substring(offset + 1);
+
+            if (!targetString.All(ch => FragmentAllowedCharacters.Contains(ch)))
+            {
+                throw new InvalidUriException();
+            }
+
+            return targetString;
+        }
+
+        /// <summary>
+        /// This collection contains all possible characters that can be used inside a Fragment
+        /// component.
+        /// </summary>
+        private static readonly HashSet<char> FragmentAllowedCharacters = new HashSet<char>
+        {
+            // PCHAR
+
+            // Unreserved
+
+            // Alpha lowercase
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+
+            // Alpha uppercase
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+
+            // Digit
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+
+            '-', '.', '_', '~',
+
+            // Percent-Encoded
+
+            '%', 'A', 'B', 'C', 'D', 'E', 'F',
+
+            // sub-delims
+
+            '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=',
+
+            '/', '?',
+        };
     }
+
 
     /// <summary>
     /// This class represents an exception internally thrown by <see cref="Uri"/> parser when
