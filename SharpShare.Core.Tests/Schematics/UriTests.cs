@@ -21,11 +21,12 @@ namespace SharpShare.Core.Tests.Schematics
         [DataRow("https://www.example.com", "https", "www.example.com", new string[] {})]
         [DataRow("ssh://a.com/foo/bar", "ssh", "a.com", new [] {"", "foo", "bar"})]
         [DataRow("ss+h://a.com/foo/bar", "ss+h", "a.com", new [] {"", "foo", "bar"})]
-        public void FromString_ReceivedValidUri_UriParsedProperly(string uriString, string scheme, string authority, string[] path)
+        public void FromString_ReceivedValidUri_UriParsedProperly(
+            string uriString,
+            string scheme,
+            string authority,
+            string[] path)
         {
-            // Arrange
-            var pathList = path.ToList();
-
             // Act
             var uri = Uri.FromString(uriString);
 
@@ -33,7 +34,7 @@ namespace SharpShare.Core.Tests.Schematics
             Assert.IsNotNull(uri);
             Assert.AreEqual(scheme, uri.Scheme);
             Assert.AreEqual(authority, uri.Authority);
-            Assert.IsTrue(pathList.SequenceEqual(uri.Path));
+            Assert.IsTrue(path.SequenceEqual(uri.Path));
         }
 
         [TestMethod]
@@ -666,6 +667,27 @@ namespace SharpShare.Core.Tests.Schematics
 
             // Assert
             Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("unix:///var/docker.sock", "unix", "", "", new [] {"", "var", "docker.sock"})]
+        public void FromString_ValidUnixSocket_ReturnsValidObject(
+            string uriString,
+            string scheme,
+            string authority,
+            string host,
+            string[] path)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual(scheme, uri.Scheme);
+            Assert.AreEqual(authority, uri.Authority);
+            Assert.AreEqual(host, uri.Host);
+            Assert.IsFalse(uri.HasPort);
+            Assert.IsTrue(path.SequenceEqual(uri.Path));
         }
     }
 }

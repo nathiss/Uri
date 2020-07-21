@@ -358,8 +358,7 @@ namespace SharpShare.Core.Schematics
         /// a tuple of null, an offset equal to the given <paramref name="offset"/> and false.
         /// </summary>
         /// <param name="authority">
-        /// This is the authority component of the URI. If this parameter is equal to null,
-        /// it means that the URI does not have the authority component.
+        /// This is the authority component of the URI. This parameter must not be empty.
         /// </param>
         /// <param name="offset">
         /// This is the offset of the given <paramref name="authority"/> after which the
@@ -389,9 +388,11 @@ namespace SharpShare.Core.Schematics
         /// </exception>
         private static (string Host, int Offset, bool IsIpLiteral) ParseHost(string authority, int offset)
         {
-            if (string.IsNullOrWhiteSpace(authority))
+            // If the authority component is present, then the host component is mandatory, though
+            // it might be empty.
+            if (authority == string.Empty)
             {
-                return (null, offset, false);
+                return (string.Empty, offset, false);
             }
 
             // Parse IP-Literal
@@ -697,7 +698,8 @@ namespace SharpShare.Core.Schematics
         ///  -1. If the Port component of the URI is empty, this method will return 0.
         /// </summary>
         /// <param name="authority">
-        /// This is the authority component of the URI. This parameter must not be null.
+        /// This is the authority component of the URI. If the authority is empty, then
+        /// the port component is not present in the URI.
         /// </param>
         /// <param name="offset">
         /// This is the offset of the given <paramref name="authority"/> after which the
@@ -714,6 +716,11 @@ namespace SharpShare.Core.Schematics
         /// </exception>
         private static int ParsePort(string authority, int offset)
         {
+            if (string.IsNullOrWhiteSpace(authority))
+            {
+                return -1;
+            }
+
             if (offset >= authority.Length)
             {
                 if (authority[offset - 1] == ':')
