@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Uri
 {
@@ -105,5 +106,22 @@ namespace Uri
 
             '/', '?',
         };
+
+
+        /// <summary>
+        /// This method converts the Fragment component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="System.Text.StringBuilder" /> into which the Fragment
+        /// component will be added.
+        /// </param>
+        private void FragmentToString(StringBuilder uriBuilder)
+        {
+            if (!string.IsNullOrEmpty(Fragment))
+            {
+                uriBuilder.Append($"#{Fragment}");
+            }
+        }
     }
 }

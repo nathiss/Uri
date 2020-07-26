@@ -8,7 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text;
 
 namespace Uri
 {
@@ -136,7 +136,7 @@ namespace Uri
         /// </returns>
         /// <remarks>
         /// If a key-value element of the Query component has more than one equal sign ("="), then
-        /// the first occurence of the equal sign will be treated as a separator and the others as
+        /// the first occurrence of the equal sign will be treated as a separator and the others as
         /// a part of value.
         /// </remarks>
         private static IReadOnlyList<KeyValuePair<string, string>> ParseQuery(string query)
@@ -160,6 +160,35 @@ namespace Uri
                         : new KeyValuePair<string, string>(keyValuePair[0], keyValuePair[1])
                 )
                 .ToList();
+        }
+
+                /// <summary>
+        /// This method converts the Query component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="System.Text.StringBuilder" /> into which the Query
+        /// component will be added.
+        /// </param>
+        private void QueryToString(StringBuilder uriBuilder)
+        {
+            if (Query == null || Query.Count == 0)
+            {
+                return;
+            }
+
+            var keyValuePairs = Query
+                .Select(kv =>
+                {
+                    if (kv.Value != null)
+                    {
+                        return $"{kv.Key}={kv.Value}";
+                    }
+                    return $"{kv.Key}";
+                }
+            );
+
+            uriBuilder.Append('?').AppendJoin('&', keyValuePairs);
         }
     }
 }

@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Uri
 {
@@ -180,6 +181,31 @@ namespace Uri
 
             ':', '@',
         };
+
+        /// <summary>
+        /// This method converts the Path component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="System.Text.StringBuilder" /> into which the Path
+        /// component will be added.
+        /// </param>
+        private void PathToString(StringBuilder uriBuilder)
+        {
+            if (Path.Count == 0)
+            {
+                return;
+            }
+
+            if (Path[0] == string.Empty && Path.Count == 1)
+            {
+                uriBuilder.Append("/");
+            }
+            else
+            {
+                uriBuilder.AppendJoin('/', Path);
+            }
+        }
 
     }
 }

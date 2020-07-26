@@ -7,6 +7,7 @@
 #endregion
 
 using System;
+using System.Text;
 
 namespace Uri
 {
@@ -67,6 +68,22 @@ namespace Uri
             catch (ArgumentOutOfRangeException)
             {
                 return (null, offset);
+            }
+        }
+
+        /// <summary>
+        /// This method converts the Authority component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="System.Text.StringBuilder" /> into which the Authority
+        /// component will be added.
+        /// </param>
+        private void AuthorityToString(StringBuilder uriBuilder)
+        {
+            if (Authority != null)
+            {
+                uriBuilder.Append($"//{Authority}");
             }
         }
     }

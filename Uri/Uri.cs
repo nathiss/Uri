@@ -100,6 +100,25 @@ namespace Uri
         }
 
         /// <summary>
+        /// This method returns a string representation of the object.
+        /// </summary>
+        /// <returns>
+        /// A string representation of the object is returned.
+        /// </returns>
+        public override string ToString()
+        {
+            var uriBuilder = new StringBuilder();
+
+            SchemeToString(uriBuilder);
+            AuthorityToString(uriBuilder);
+            PathToString(uriBuilder);
+            QueryToString(uriBuilder);
+            FragmentToString(uriBuilder);
+
+            return uriBuilder.ToString();
+        }
+
+        /// <summary>
         /// This is the default constructor of the <see cref="Uri"/> class.
         /// Since this constructor is private the only was of create a new <see cref="Uri"/>
         /// object is through <see cref="FromString"/> static method.

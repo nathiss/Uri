@@ -1,5 +1,5 @@
 ﻿#region Copyrights
-// This file is a part of the SharpShare.
+// This file is a part of the Uri.Tests.
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
@@ -8,7 +8,6 @@
 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uri;
 
 namespace Uri.Tests
 {
@@ -908,6 +907,38 @@ namespace Uri.Tests
 
             // Assert
             Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/foo/bar", "https://example.com/foo/bar")]
+        [DataRow("hTTps://example.com/foo/bar", "https://example.com/foo/bar")]
+        [DataRow("hTTps://EXAMPLE.com/foo/bar", "https://example.com/foo/bar")]
+        [DataRow("hTTps://EXAMPLE.com/", "https://example.com/")]
+        [DataRow("hTTps://EXAMPLE.com", "https://example.com")]
+        [DataRow("hTTps:", "https:")]
+        [DataRow("https:example.com", "https:example.com")]
+        [DataRow("https:/example.com", "https:/example.com")]
+        [DataRow("https://example.com/foo/bar?key1=value1", "https://example.com/foo/bar?key1=value1")]
+        [DataRow("https://example.com/foo/bar?key1=value1&key2=value2", "https://example.com/foo/bar?key1=value1&key2=value2")]
+        [DataRow("https://example.com/foo/bar?key1=value1&KEy2=value2&key3", "https://example.com/foo/bar?key1=value1&KEy2=value2&key3")]
+        [DataRow("https://example.com/foo/bar?", "https://example.com/foo/bar")]
+        [DataRow("https://user@example.com/foo/bar", "https://user@example.com/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com/foo/bar", "https://user:PASSWD@example.com/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com:8080/foo/bar", "https://user:PASSWD@example.com:8080/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com:/foo/bar", "https://user:PASSWD@example.com/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com:/foo/bar#fragment", "https://user:PASSWD@example.com/foo/bar#fragment")]
+        [DataRow("https://user:PASSWD@example.com:/foo/bar", "https://user:PASSWD@example.com/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com:/foo/bar?#", "https://user:PASSWD@example.com/foo/bar")]
+        [DataRow("https://user:PASSWD@example.com:/foo/bar?#target", "https://user:PASSWD@example.com/foo/bar#target")]
+        [DataRow("https://user:PASSWD@example.com?#target", "https://user:PASSWD@example.com#target")]
+        [DataRow("https://user:PASSWD@example.com?#", "https://user:PASSWD@example.com")]
+        public void ToString_GotValidUri_ReturnedNormalizedUri(string uriString, string normalizedUri)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.AreEqual(normalizedUri, uri.ToString());
         }
     }
 }

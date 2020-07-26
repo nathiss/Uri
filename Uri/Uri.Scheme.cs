@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Uri
 {
@@ -80,5 +81,21 @@ namespace Uri
             // ASCII special characters
             '+', '-' ,'.',
         };
+
+        /// <summary>
+        /// This method converts the Scheme component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="System.Text.StringBuilder" /> into which the Scheme
+        /// component will be added.
+        /// </param>
+        private void SchemeToString(StringBuilder uriBuilder)
+        {
+            if (Scheme != null)
+            {
+                uriBuilder.Append($"{Scheme}:");
+            }
+        }
     }
 }
