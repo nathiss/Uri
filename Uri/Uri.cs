@@ -1,5 +1,5 @@
 ﻿#region Copyrights
-// This file is a part of the SharpShare.
+// This file is a part of the Uri.
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
@@ -8,9 +8,9 @@
 
 using System;
 using System.Text;
-using SharpShare.Core.Utils;
+using Uri.Utils;
 
-namespace SharpShare.Core.Schematics.Uri
+namespace Uri
 {
     /// <summary>
     /// This class represents a Universal Resource Identifier (URI) which is

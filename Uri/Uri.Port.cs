@@ -1,12 +1,12 @@
 ﻿#region Copyrights
-// This file is a part of the SharpShare.
+// This file is a part of the Uri.
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
-namespace SharpShare.Core.Schematics.Uri
+namespace Uri
 {
     public partial class Uri
     {

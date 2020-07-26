@@ -1,5 +1,5 @@
 ﻿#region Copyrights
-// This file is a part of the SharpShare.
+// This file is a part of the Uri.
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
@@ -8,7 +8,7 @@
 
 using System.Linq;
 
-namespace SharpShare.Core.Utils
+namespace Uri.Utils
 {
     /// <summary>
     /// This class contains extension methods for <see cref="string"/> class.

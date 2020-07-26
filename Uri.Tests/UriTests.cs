@@ -8,9 +8,9 @@
 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpShare.Core.Schematics.Uri;
+using Uri;
 
-namespace SharpShare.Core.Tests.Schematics
+namespace Uri.Tests
 {
     [TestClass]
     public class UriTests

@@ -1,5 +1,5 @@
 ﻿#region Copyrights
-// This file is a part of the SharpShare.
+// This file is a part of the Uri.Tests.
 //
 // Copyright (c) 2020 Kamil Rusin
 // Licensed under the MIT License.
@@ -7,9 +7,8 @@
 #endregion
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpShare.Core.Utils;
 
-namespace SharpShare.Core.Tests.Utils
+namespace Uri.Utils.Tests
 {
     [TestClass]
     public class StringExtensionsTests
