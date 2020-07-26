@@ -423,9 +423,7 @@ namespace Uri.Tests
         }
 
         [DataTestMethod]
-        [DataRow("https://user@example.com:/")]
         [DataRow("https://yser:passwd@a:12")]
-        [DataRow("a://a:")]
         public void HasPort_UriHasPort_ReturnsTrue(string uriString)
         {
             // Act
@@ -439,6 +437,8 @@ namespace Uri.Tests
         [DataRow("https://user@example.com/")]
         [DataRow("https://yser:passwd@a")]
         [DataRow("a://@a")]
+        [DataRow("a://a:")]
+        [DataRow("https://user@example.com:/")]
         public void HasPort_UriDoesNotHavePort_ReturnsFalse(string uriString)
         {
             // Act

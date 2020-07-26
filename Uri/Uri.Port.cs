@@ -24,7 +24,7 @@ namespace Uri
         /// <summary>
         /// This property returns an indication of whether or not the URI has a Port component.
         /// </summary>
-        public bool HasPort => Port != -1;
+        public bool HasPort => Port != -1 && Port != 0;
 
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the port of
