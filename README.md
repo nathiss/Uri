@@ -21,7 +21,7 @@ hier-part   = `"//" authority path-abempty`
             `/ path-rootless`
             `/ path-empty`
 
-```
+```none
      foo://example.com:8042/over/there?name=ferret#nose
      \_/   \______________/\_________/ \_________/ \__/
       |           |            |            |        |
@@ -37,6 +37,7 @@ or begin with a slash ("/") character.  When authority is not present,
 the path cannot begin with two slash characters ("//").
 
 For more detailed information about URI components see:
+
 * **Scheme:** [RFC 3986 (Section 3.1)](https://tools.ietf.org/html/rfc3986#section-3.1)
 * **Authority:** [RFC 3986 (Section 3.2)](https://tools.ietf.org/html/rfc3986#section-3.2)
   * **User Information:** [RFC 3986 (Section 3.2.1)](https://tools.ietf.org/html/rfc3986#section-3.2.1)
@@ -60,15 +61,17 @@ example, `"%20"` is the percent-encoding for the binary octet
 `"00100000`" (ABNF: `%x20`), which in US-ASCII corresponds to the space
 character (SP).
 
-##### Reserved sets of characters
+#### Reserved sets of characters
 
 The following character must be percent-encoded if they are a part of data:
+
 * `":", "/", "?", "#", "[", "]", "@"`
 * `"!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="`
 
-##### Unreserved set of characters
+#### Unreserved set of characters
 
 The following characters do not need to be percent-encoded:
+
 * `ALPHA, DIGIT, "-", ".", "_", "~"`
 
 *Note:
@@ -81,14 +84,36 @@ corresponding percent-encoded US-ASCII octet are equivalent.
 The following example of URIs illustrate several URI schemes and variations in
 their common syntax components:
 
-* ftp://ftp.is.co.za/rfc/rfc1808.txt
-* http://www.ietf.org/rfc/rfc2396.txt
-* ldap://[2001:db8::7]/c=GB?objectClass?one
-* mailto:John.Doe@example.com
-* news:comp.infosystems.www.servers.unix
-* tel:+1-816-555-1212
-* telnet://192.0.2.16:80/
-* urn:oasis:names:specification:docbook:dtd:xml:4.1.2
+* `ftp://ftp.is.co.za/rfc/rfc1808.txt`
+* `http://www.ietf.org/rfc/rfc2396.txt`
+* `ldap://[2001:db8::7]/c=GB?objectClass?one`
+* `mailto:John.Doe@example.com`
+* `news:comp.infosystems.www.servers.unix`
+* `tel:+1-816-555-1212`
+* `telnet://192.0.2.16:80/`
+* `urn:oasis:names:specification:docbook:dtd:xml:4.1.2`
+
+### URI Reference
+
+[RFC 3986 (Section 4.1)](https://tools.ietf.org/html/rfc3986#section-4.1)
+
+`URI-reference = URI / relative-ref`
+
+A URI-reference is either a URI or a relative reference.  If the
+URI-reference's prefix does not match the syntax of a scheme followed
+by its colon separator, then the URI-reference is a relative reference.
+
+#### Relative Reference
+
+[RFC 3986 (Section 4.2)](https://tools.ietf.org/html/rfc3986#section-4.2)
+
+`relative-ref  = relative-part [ "?" query ] [ "#" fragment ]`
+
+A relative reference that begins with two slash characters is termed
+a network-path reference; such references are rarely used.  A
+relative reference that begins with a single slash character is
+termed an absolute-path reference.  A relative reference that does
+not begin with a slash character is termed a relative-path reference.
 
 ### Notes
 
