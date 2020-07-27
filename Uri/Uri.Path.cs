@@ -93,7 +93,7 @@ namespace Uri
 
                 var pathString = endOfPath == -1
                     ? uriString.Substring(offset)
-                    : uriString.Substring(offset, endOfPath - offset);
+                    : uriString[offset..endOfPath];
 
                 if (pathString == "/")
                 {
@@ -129,7 +129,7 @@ namespace Uri
             {
                 var pathString = endOfPath == -1
                     ? uriString.Substring(offset)
-                    : uriString.Substring(offset, endOfPath - offset);
+                    : uriString[offset..endOfPath];
 
                 if (!pathString.All(ch => PathAllowedCharacters.Contains(ch)))
                 {

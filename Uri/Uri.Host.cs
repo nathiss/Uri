@@ -80,7 +80,7 @@ namespace Uri
                 }
 
                 var colonAfterIpLiteralHost = authority.IndexOf(':', endOfIpLiteralHost);
-                var ipLiteralString = authority.Substring(offset + 1, endOfIpLiteralHost - (offset + 1));
+                var ipLiteralString = authority[(offset + 1)..endOfIpLiteralHost];
 
                 // IPv6
                 var ip6Address = ParseIp6Address(ipLiteralString);
@@ -107,7 +107,7 @@ namespace Uri
 
             var hostString = endOfHost == -1
                 ? authority.Substring(offset)
-                : authority.Substring(offset, endOfHost - offset);
+                : authority[offset..endOfHost];
 
             if (!hostString.All(ch => HostAllowedCharacters.Contains(ch)))
             {
@@ -305,7 +305,7 @@ namespace Uri
             }
 
             // First segment of a IPvFuture address must be a hex number.
-            var firstHexNumber = ipLiteral.Substring(1, firstDot - 1);
+            var firstHexNumber = ipLiteral[1..firstDot];
             if (!int.TryParse(firstHexNumber, NumberStyles.HexNumber, null, out _))
             {
                 return null;

@@ -63,7 +63,7 @@ namespace Uri
                 var endOfAuthority = uriString.IndexOfAny(new []{'/', '?', '#'}, offset + 2);
                 return endOfAuthority == -1
                     ? (uriString.Substring(offset + 2), uriString.Length)
-                    : (uriString.Substring(offset + 2, endOfAuthority - (offset + 2)), endOfAuthority);
+                    : (uriString[(offset + 2)..endOfAuthority], endOfAuthority);
             }
             catch (ArgumentOutOfRangeException)
             {
