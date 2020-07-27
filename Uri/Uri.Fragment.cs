@@ -70,7 +70,7 @@ namespace Uri
                 throw new InvalidUriException();
             }
 
-            return targetString;
+            return DecodeFromPercentEncoded(targetString);
         }
 
         /// <summary>

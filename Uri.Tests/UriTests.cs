@@ -1050,5 +1050,31 @@ namespace Uri.Tests
             // Assert
             Assert.IsNull(uri);
         }
+
+        [DataTestMethod]
+        [DataRow("http://example.com/f?ue#%20", " ")]
+        [DataRow("http://example.com/f?key#%23fragment%23", "#fragment#")]
+        public void FroString_FragmentWithPercentEncodedChars_RetrunsDecodedFragment(string uriString, string fragment)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasFragment);
+            Assert.AreEqual(fragment, uri.Fragment);
+        }
+
+        [DataTestMethod]
+        [DataRow("http://example.com/f?ue#%2")]
+        [DataRow("http://example.com/f?key#%23fragment%")]
+        public void FroString_FragmentWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
     }
 }

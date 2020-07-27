@@ -170,7 +170,6 @@ namespace Uri
             {
                 throw new InvalidUriException();
             }
-
         }
 
         /// <summary>
