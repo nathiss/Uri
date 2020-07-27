@@ -117,6 +117,8 @@ namespace Uri
                     }
                 }
 
+                pathSegments = pathSegments.Select(segment => DecodeFromPercentEncoded(segment)).ToList();
+
                 return (pathSegments, newOffset);
             }
 
@@ -141,6 +143,8 @@ namespace Uri
                     // segment of the path component cannot contains a colon (":").
                     throw new InvalidUriException();
                 }
+
+                pathSegments = pathSegments.Select(segment => DecodeFromPercentEncoded(segment)).ToList();
 
                 return (pathSegments, newOffset);
             }

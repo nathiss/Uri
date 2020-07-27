@@ -7,6 +7,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Text;
 using Uri.Utils;
 
@@ -116,6 +117,60 @@ namespace Uri
             FragmentToString(uriBuilder);
 
             return uriBuilder.ToString();
+        }
+
+        /// <summary>
+        /// This method returns a string with is a decoded version of the given
+        /// <paramref name="encodedElement" />. If the <paramref name="encodedElement" />
+        /// does not contain percent-encoded characters the returned string is equivalent to the
+        /// given one.
+        /// </summary>
+        /// <param name="encodedElement">
+        /// This is the percent-encoded version of the string.
+        /// </param>
+        /// <returns>
+        ///  A string with is a decoded version of the given <paramref name="encodedElement" />
+        /// is returned.
+        /// </returns>
+        /// <exception cref="InvalidUriException">
+        /// An exception of this type is thrown if the given <paramref name="encodedElement" />
+        /// contains a percent-encoded character which is invalid (e.g. two chars after "%" are not
+        /// hexdigits).
+        /// </exception>
+        private static string DecodeFromPercentEncoded(string encodedElement)
+        {
+            try
+            {
+                var decodedStringBuilder = new StringBuilder();
+
+                var nextIndexToAnalyse = 0;
+                var indexOfPercentChar = encodedElement.IndexOf('%');
+                while (indexOfPercentChar != -1)
+                {
+                    decodedStringBuilder.Append(encodedElement.Substring(nextIndexToAnalyse, indexOfPercentChar));
+
+                    var hexValueString = encodedElement.Substring(indexOfPercentChar + 1, 2);
+
+                    if (!int.TryParse(hexValueString, NumberStyles.HexNumber, null, out var hexValue))
+                    {
+                        throw new InvalidUriException();
+                    }
+
+                    decodedStringBuilder.Append(Convert.ToChar(hexValue));
+
+                    nextIndexToAnalyse = indexOfPercentChar + 3;
+                    indexOfPercentChar = encodedElement.IndexOf('%', nextIndexToAnalyse);
+                }
+
+                decodedStringBuilder.Append(encodedElement.Substring(nextIndexToAnalyse));
+
+                return decodedStringBuilder.ToString();
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new InvalidUriException();
+            }
+
         }
 
         /// <summary>

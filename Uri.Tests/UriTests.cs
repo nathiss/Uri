@@ -940,5 +940,34 @@ namespace Uri.Tests
             // Assert
             Assert.AreEqual(normalizedUri, uri.ToString());
         }
+
+        [DataTestMethod]
+        [DataRow("http://example.com/fo%20o/bar", "fo o")]
+        [DataRow("http://example.com/fo%2Fo/bar", "fo/o")]
+        [DataRow("http://example.com/fo%2fo/bar", "fo/o")]
+        public void FroString_PathWithPercentEncodedChars_RetrunsDecodedPath(string uriString, string path)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.Path.Count >= 2);
+            Assert.AreEqual(path, uri.Path[1]);
+        }
+
+        [DataTestMethod]
+        [DataRow("http://example.com/fo%2Go/bar")]
+        [DataRow("http://example.com/fo%2qo/bar")]
+        [DataRow("http://example.com/fo%%2fo/bar")]
+        [DataRow("http://example.com/fo%2fo/bar%")]
+        public void FroString_PathWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
     }
 }
