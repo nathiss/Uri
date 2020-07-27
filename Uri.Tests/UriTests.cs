@@ -998,5 +998,57 @@ namespace Uri.Tests
             // Assert
             Assert.IsNull(uri);
         }
+
+        [TestMethod]
+        public void FroString_QueryWithPercentEncodedChars_RetrunsDecodedQuery()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com/path?ke%20y=va%23%3dlue#");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("ke y", uri.Query[0].Key);
+            Assert.AreEqual("va#=lue", uri.Query[0].Value);
+        }
+
+        [TestMethod]
+        public void FroString_QueryWithNoValueWithPercentEncodedChars_RetrunsDecodedQuery()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com/path?ke%20y#");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("ke y", uri.Query[0].Key);
+        }
+
+        [TestMethod]
+        public void FroString_QueryWithEmptyValueWithPercentEncodedChars_RetrunsDecodedQuery()
+        {
+            // Act
+            var uri = Uri.FromString("https://example.com/path?ke%20y=#");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasQuery);
+            Assert.AreEqual("ke y", uri.Query[0].Key);
+        }
+
+        [DataTestMethod]
+        [DataRow("http://example.com/f?ket%2=value")]
+        [DataRow("http://example.com/f?key%")]
+        [DataRow("http://xample.com/fo?key=value%2&key2")]
+        [DataRow("http://example.com/fo?%")]
+        [DataRow("http://example.com/fo?%#")]
+        public void FroString_QueryWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
     }
 }

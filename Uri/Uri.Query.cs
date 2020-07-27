@@ -20,7 +20,8 @@ namespace Uri
         /// </summary>
         /// <remarks>
         /// If the Query component is present but empty, the URI this property is
-        /// <seealso cref="string.Empty"/>.
+        /// <seealso cref="string.Empty"/>. This component's percent-encoded characters are not decoded.
+        /// In order to use Query component with decoded percent-encoded characters use <see cref="Query" />.
         /// </remarks>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
         public string QueryString { get; private set; }
@@ -156,8 +157,11 @@ namespace Uri
                 .Select(keyValueString => keyValueString.Split('=', 2))
                 .Select(
                     keyValuePair => keyValuePair.Length == 1
-                        ? new KeyValuePair<string, string>(keyValuePair[0], null)
-                        : new KeyValuePair<string, string>(keyValuePair[0], keyValuePair[1])
+                        ? new KeyValuePair<string, string>(DecodeFromPercentEncoded(keyValuePair[0]), null)
+                        : new KeyValuePair<string, string>(
+                            DecodeFromPercentEncoded(keyValuePair[0]),
+                            DecodeFromPercentEncoded(keyValuePair[1])
+                        )
                 )
                 .ToList();
         }
