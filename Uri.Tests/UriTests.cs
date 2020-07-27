@@ -223,7 +223,7 @@ namespace Uri.Tests
         }
 
         [DataTestMethod]
-        [DataRow("ssh://us$%er@example.com/FoO/BAR", "us$%er")]
+        [DataRow("ssh://us$er@example.com/FoO/BAR", "us$er")]
         [DataRow("ssh://us'er@example.com/FoO/BAR", "us'er")]
         [DataRow("ssh://u:s~er@example.com/FoO/BAR", "u:s~er")]
         public void FromString_UserInformationExtraChars_ReturnedValidObject(string uriString, string userInformation)
@@ -962,6 +962,35 @@ namespace Uri.Tests
         [DataRow("http://example.com/fo%%2fo/bar")]
         [DataRow("http://example.com/fo%2fo/bar%")]
         public void FroString_PathWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNull(uri);
+        }
+
+        [DataTestMethod]
+        [DataRow("http://use%20r@example.com/fo%20o/bar", "use r")]
+        [DataRow("http://user%40@example.com/fo%2Fo/bar", "user@")]
+        [DataRow("http://user%40%20%2f@example.com/fo%2fo/bar", "user@ /")]
+        public void FroString_UserInformationWithPercentEncodedChars_RetrunsDecodedUserInformation(string uriString, string userInformation)
+        {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.HasUserInformation);
+            Assert.AreEqual(userInformation, uri.UserInformation);
+        }
+
+        [DataTestMethod]
+        [DataRow("http://user%@example.com/f")]
+        [DataRow("http://user%4@example.com/f")]
+        [DataRow("http://%%40@example.com/fo")]
+        [DataRow("http://user%%40user@example.com/fo")]
+        public void FroString_UserInformationWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
         {
             // Act
             var uri = Uri.FromString(uriString);

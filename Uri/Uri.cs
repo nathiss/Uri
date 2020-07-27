@@ -147,7 +147,7 @@ namespace Uri
                 var indexOfPercentChar = encodedElement.IndexOf('%');
                 while (indexOfPercentChar != -1)
                 {
-                    decodedStringBuilder.Append(encodedElement.Substring(nextIndexToAnalyse, indexOfPercentChar));
+                    decodedStringBuilder.Append(encodedElement[nextIndexToAnalyse..indexOfPercentChar]);
 
                     var hexValueString = encodedElement.Substring(indexOfPercentChar + 1, 2);
 
