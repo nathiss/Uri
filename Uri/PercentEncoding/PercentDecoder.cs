@@ -39,6 +39,11 @@ namespace Uri.PercentEncoding
         /// </exception>
         public static string Decode(string percentEncodedSegment)
         {
+            if (string.IsNullOrWhiteSpace(percentEncodedSegment))
+            {
+                return percentEncodedSegment;
+            }
+
             try
             {
                 var decodedStringBuilder = new StringBuilder();
