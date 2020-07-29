@@ -7,8 +7,9 @@
 #endregion
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uri.Utils;
 
-namespace Uri.Utils.Tests
+namespace Uri.Tests.Utils
 {
     [TestClass]
     public class StringExtensionsTests
