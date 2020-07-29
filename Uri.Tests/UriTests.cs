@@ -1076,5 +1076,24 @@ namespace Uri.Tests
             // Assert
             Assert.IsNull(uri);
         }
+
+        [DataTestMethod]
+        [DataRow("https://user%20passwd@example.com:8080/path", "https://user%20passwd@example.com:8080/path")]
+        [DataRow("https://user%20%20passwd@example.com:8080/path", "https://user%20%20passwd@example.com:8080/path")]
+        [DataRow("https://user%20passwd%40@example.com:8080/path", "https://user%20passwd%40@example.com:8080/path")]
+        [DataRow("https://user%20%3fpasswd%40@example.com:8080/path", "https://user%20%3Fpasswd%40@example.com:8080/path")]
+        [DataRow("https://user%20%3fpasswd%3A%2d%40@example.com:8080/path", "https://user%20%3Fpasswd:-%40@example.com:8080/path")]
+        public void ToString_GivenUserInformationWithPercentEncodedChars_ReturnsProperlyEncodedString(
+            string uriString, string result)
+        {
+            // Arrange
+            var uri = Uri.FromString(uriString);
+
+            // Act
+            var uriToStringResult = uri.ToString();
+
+            // Assert
+            Assert.AreEqual(result, uriToStringResult);
+        }
     }
 }

@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Uri.Exceptions;
 using Uri.PercentEncoding;
 
@@ -96,5 +97,22 @@ namespace Uri
 
             ':',
         };
+
+        /// <summary>
+        /// This method converts the UserInformation component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="StringBuilder" /> into which the UserInformation component will be added.
+        /// </param>
+        private void BuildUserInformationString(StringBuilder uriBuilder)
+        {
+            if (HasUserInformation)
+            {
+                uriBuilder
+                    .Append(PercentEncoder.Encode(UserInformation, UserInformationAllowedCharacters))
+                    .Append('@');
+            }
+        }
     }
 }

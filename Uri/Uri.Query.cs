@@ -168,15 +168,14 @@ namespace Uri
                 .ToList();
         }
 
-                /// <summary>
+        /// <summary>
         /// This method converts the Query component into a string and appends it into the
-        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
         /// </summary>
         /// <param name="uriBuilder">
-        /// This is the <see cref="System.Text.StringBuilder" /> into which the Query
-        /// component will be added.
+        /// This is the <see cref="StringBuilder" /> into which the Query component will be added.
         /// </param>
-        private void QueryToString(StringBuilder uriBuilder)
+        private void BuildQueryString(StringBuilder uriBuilder)
         {
             if (Query == null || Query.Count == 0)
             {
@@ -190,7 +189,7 @@ namespace Uri
                     {
                         return $"{kv.Key}={kv.Value}";
                     }
-                    return $"{kv.Key}";
+                    return kv.Key;
                 }
             );
 

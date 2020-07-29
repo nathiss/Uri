@@ -6,6 +6,7 @@
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
+using System.Text;
 using Uri.Exceptions;
 
 namespace Uri
@@ -75,6 +76,21 @@ namespace Uri
             }
 
             return port;
+        }
+
+        /// <summary>
+        /// This method converts the Port component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="StringBuilder" /> into which the Port component will be added.
+        /// </param>
+        private void BuildPortString(StringBuilder uriBuilder)
+        {
+            if (HasPort)
+            {
+                uriBuilder.Append(':').Append(Port.ToString());
+            }
         }
     }
 }

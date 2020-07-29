@@ -190,13 +190,12 @@ namespace Uri
 
         /// <summary>
         /// This method converts the Path component into a string and appends it into the
-        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
         /// </summary>
         /// <param name="uriBuilder">
-        /// This is the <see cref="System.Text.StringBuilder" /> into which the Path
-        /// component will be added.
+        /// This is the <see cref="StringBuilder" /> into which the Path component will be added.
         /// </param>
-        private void PathToString(StringBuilder uriBuilder)
+        private void BuildPathString(StringBuilder uriBuilder)
         {
             if (Path.Count == 0)
             {

@@ -109,11 +109,11 @@ namespace Uri
         {
             var uriBuilder = new StringBuilder();
 
-            SchemeToString(uriBuilder);
-            AuthorityToString(uriBuilder);
-            PathToString(uriBuilder);
-            QueryToString(uriBuilder);
-            FragmentToString(uriBuilder);
+            BuildSchemeString(uriBuilder);
+            BuildAuthorityString(uriBuilder);
+            BuildPathString(uriBuilder);
+            BuildQueryString(uriBuilder);
+            BuildFragmentString(uriBuilder);
 
             return uriBuilder.ToString();
         }

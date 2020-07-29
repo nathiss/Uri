@@ -73,17 +73,19 @@ namespace Uri
 
         /// <summary>
         /// This method converts the Authority component into a string and appends it into the
-        /// given <paramref name="uriBuilder" /> <see cref="System.Text.StringBuilder" />.
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
         /// </summary>
         /// <param name="uriBuilder">
-        /// This is the <see cref="System.Text.StringBuilder" /> into which the Authority
-        /// component will be added.
+        /// This is the <see cref="StringBuilder" /> into which the Authority component will be added.
         /// </param>
-        private void AuthorityToString(StringBuilder uriBuilder)
+        private void BuildAuthorityString(StringBuilder uriBuilder)
         {
             if (Authority != null)
             {
-                uriBuilder.Append($"//{Authority}");
+                uriBuilder.Append("//");
+                BuildUserInformationString(uriBuilder);
+                BuildHostString(uriBuilder);
+                BuildPortString(uriBuilder);
             }
         }
     }

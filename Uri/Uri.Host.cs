@@ -10,7 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Uri.Exceptions;
+using Uri.PercentEncoding;
 
 namespace Uri
 {
@@ -370,6 +372,21 @@ namespace Uri
             return hostString.All(ch => HostAllowedCharacters.Contains(ch)) ?
                 hostString.ToLower() :
                 null;
+        }
+
+        /// <summary>
+        /// This method converts the Host component into a string and appends it into the
+        /// given <paramref name="uriBuilder" /> <see cref="StringBuilder" />.
+        /// </summary>
+        /// <param name="uriBuilder">
+        /// This is the <see cref="StringBuilder" /> into which the Host component will be added.
+        /// </param>
+        private void BuildHostString(StringBuilder uriBuilder)
+        {
+            if (HasHost)
+            {
+                uriBuilder.Append(PercentEncoder.Encode(Host));
+            }
         }
     }
 }

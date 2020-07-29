@@ -6,6 +6,7 @@
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uri.PercentEncoding;
 
@@ -86,6 +87,19 @@ namespace Uri.Tests.PercentEncoding
 
             // Assert
             Assert.AreEqual(encodedSegment, encoded);
+        }
+
+        [TestMethod]
+        public void Encode_GivenSegmentAndHashSetOfAllowedChars_ReturnsEncodedSegment()
+        {
+            // Arrange
+            var allowedChars = new HashSet<char> { '#' };
+
+            // Act
+            var encoded = PercentEncoder.Encode("example:#.com", allowedChars);
+
+            // Assert
+            Assert.AreEqual("example%3A#.com", encoded);
         }
     }
 }

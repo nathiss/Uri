@@ -44,6 +44,43 @@ namespace Uri.PercentEncoding
         }
 
         /// <summary>
+        /// This method performs percent-encoding of the given <paramref name="segment" /> and
+        /// returns a string containing the percent-encoded representation of it.
+        /// </summary>
+        /// <param name="segment">
+        /// This is the string on which percent-encoding will be performed.
+        /// </param>
+        /// <param name="allowedCharacters">
+        /// This is a collection of characters allowed in the segment. These characters will not be
+        /// percent-encoded.
+        /// </param>
+        /// <returns>
+        /// A string containing the percent-encoded representation of <paramref name="segment" />
+        /// is returned.
+        /// </returns>
+        public static string Encode(string segment, HashSet<char> allowedCharacters)
+        {
+            if (string.IsNullOrEmpty(segment))
+            {
+                return segment;
+            }
+
+            var reservedCharactersMap = ReservedCharacters
+                .Except(allowedCharacters)
+                .Select(chr => new KeyValuePair<string, string>(
+                    chr.ToString(),
+                    $"%{(int)chr:X}"
+                ));
+
+            foreach (var reservedCharacterMap in reservedCharactersMap)
+            {
+                segment = segment.Replace(reservedCharacterMap.Key, reservedCharacterMap.Value);
+            }
+
+            return segment;
+        }
+
+        /// <summary>
         /// This is the collection of reserved characters defined in
         /// <see href="https://tools.ietf.org/html/rfc3986#section-2.2">RFC 3986 (Section 2.2)</see>.
         /// </summary>
@@ -71,7 +108,7 @@ namespace Uri.PercentEncoding
         private static readonly IList<KeyValuePair<string, string>> ReservedCharactersMap = ReservedCharacters
             .Select(chr => new KeyValuePair<string, string>(
                 chr.ToString(),
-                $"%{((int)chr).ToString("X")}"
+                $"%{(int)chr:X}"
             )).ToList();
     }
 }
