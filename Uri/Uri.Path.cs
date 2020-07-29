@@ -9,6 +9,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Uri.Exceptions;
+using Uri.PercentEncoding;
 
 namespace Uri
 {
@@ -117,7 +119,7 @@ namespace Uri
                     }
                 }
 
-                pathSegments = pathSegments.Select(segment => DecodeFromPercentEncoded(segment)).ToList();
+                pathSegments = pathSegments.Select(segment => PercentDecoder.Decode(segment)).ToList();
 
                 return (pathSegments, newOffset);
             }
@@ -144,7 +146,7 @@ namespace Uri
                     throw new InvalidUriException();
                 }
 
-                pathSegments = pathSegments.Select(segment => DecodeFromPercentEncoded(segment)).ToList();
+                pathSegments = pathSegments.Select(segment => PercentDecoder.Decode(segment)).ToList();
 
                 return (pathSegments, newOffset);
             }

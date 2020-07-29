@@ -6,6 +6,8 @@
 // See LICENSE.txt file in the project root for full license information.
 #endregion
 
+using Uri.Exceptions;
+
 namespace Uri
 {
     public partial class Uri

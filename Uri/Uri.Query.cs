@@ -9,6 +9,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Uri.Exceptions;
+using Uri.PercentEncoding;
 
 namespace Uri
 {
@@ -157,10 +159,10 @@ namespace Uri
                 .Select(keyValueString => keyValueString.Split('=', 2))
                 .Select(
                     keyValuePair => keyValuePair.Length == 1
-                        ? new KeyValuePair<string, string>(DecodeFromPercentEncoded(keyValuePair[0]), null)
+                        ? new KeyValuePair<string, string>(PercentDecoder.Decode(keyValuePair[0]), null)
                         : new KeyValuePair<string, string>(
-                            DecodeFromPercentEncoded(keyValuePair[0]),
-                            DecodeFromPercentEncoded(keyValuePair[1])
+                            PercentDecoder.Decode(keyValuePair[0]),
+                            PercentDecoder.Decode(keyValuePair[1])
                         )
                 )
                 .ToList();

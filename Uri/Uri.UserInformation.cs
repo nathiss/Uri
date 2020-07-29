@@ -8,6 +8,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Uri.Exceptions;
+using Uri.PercentEncoding;
 
 namespace Uri
 {
@@ -60,7 +62,7 @@ namespace Uri
                 throw new InvalidUriException();
             }
 
-            return (DecodeFromPercentEncoded(userInformation), endOfUserInformation + 1);
+            return (PercentDecoder.Decode(userInformation), endOfUserInformation + 1);
         }
 
         /// <summary>
