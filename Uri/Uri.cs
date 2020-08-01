@@ -245,6 +245,6 @@ namespace Uri
         /// Since this constructor is private the only was of create a new <see cref="Uri"/>
         /// object is through <see cref="FromString"/> static method.
         /// </summary>
-        private Uri() {}
+        private Uri() { }
     }
 }
