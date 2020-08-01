@@ -43,21 +43,19 @@ namespace Uri
             try
             {
                 var scheme = SchemeComponent.FromString(uriString);
-
-                var uri = new Uri { _scheme = scheme.Scheme };
-
                 var authority = AuthorityComponent.FromString(uriString, scheme.Offset);
-                uri._authority = authority.Authority;
-
-                var path = PathComponent.FromString(uriString, authority.Offset, uri.Authority != null);
-                uri._path = path.Path;
-
+                var path = PathComponent.FromString(uriString, authority.Offset, authority.Authority != null);
                 var query = QueryComponent.FromString(uriString, path.Offset);
-                uri._query = query.Query;
+                var fragment = FragmentComponent.FromString(uriString, query.Offset);
 
-                uri._fragment = FragmentComponent.FromString(uriString, query.Offset);
-
-                return uri;
+                return new Uri
+                {
+                    _scheme = scheme.Scheme,
+                    _authority = authority.Authority,
+                    _path = path.Path,
+                    _query = query.Query,
+                    _fragment = fragment,
+                };
             }
             catch (InvalidUriException)
             {
