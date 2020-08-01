@@ -46,7 +46,48 @@ namespace Uri
         /// </param>
         private PathComponent(IList<string> segments)
         {
-            Segments = segments;
+            Segments = NormalizePath(segments);
+        }
+
+        /// <summary>
+        /// This method normalizes the URI's path given as <paramref name="segments" />.
+        /// </summary>
+        /// <param name="segments">
+        /// This is the collection of path segments of the URI.
+        /// </param>
+        /// <returns>
+        /// A collection of normalized Path segments is returned.
+        /// </returns>
+        private static IList<string> NormalizePath(IList<string> segments)
+        {
+            // If the path consists of one or less segments, then there's nothing to
+            // normalize.
+            if (segments.Count <= 1)
+            {
+                return segments;
+            }
+
+            var normalizedSegments = new List<string>();
+            foreach (var segment in segments)
+            {
+                if (segment == ".")
+                {
+                    continue;
+                }
+                if (segment == "..")
+                {
+                    var lastElementIndex = normalizedSegments.Count - 1;
+                    if (normalizedSegments.Any() && normalizedSegments[lastElementIndex] != string.Empty)
+                    {
+                        normalizedSegments.RemoveAt(normalizedSegments.Count - 1);
+                    }
+                }
+                else
+                {
+                    normalizedSegments.Add(segment);
+                }
+            }
+            return normalizedSegments;
         }
 
         /// <summary>

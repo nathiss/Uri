@@ -1299,5 +1299,57 @@ namespace Uri.Tests
             Assert.IsTrue(uri.IsRelativeReference);
             Assert.AreEqual("thisIsARelativePath", uri.ToString());
         }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/a/../b#fr", 2)]
+        [DataRow("https://example.com/..", 1)]  // Do not allow to go above the root
+        [DataRow("https://example.com/../..", 1)]  // Do not allow to go above the root
+        [DataRow("https://example.com/../../..", 1)]  // Do not allow to go above the root
+        [DataRow("https://example.com/../../../a", 2)]
+        [DataRow("https://example.com/../../../a/b", 3)]
+        [DataRow("https://example.com/../../../a/b/..", 2)]
+        [DataRow("https://example.com/../../../a/b/../..", 1)]
+        [DataRow("https://example.com/../../../a/b/../../..", 1)]
+        [DataRow("https://example.com/a/././b", 3)]
+        [DataRow("https://example.com/../a/././b/./.", 3)]
+        [DataRow("https://example.com/../a/././b/././..", 2)]
+        public void FromString_GivenPathWithDotSegments_ReturnsValidNumberOfPathSegments(
+            string uriString,
+            int amountOfPathSegments
+        ) {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasEmptyPath);
+            Assert.AreEqual(amountOfPathSegments, uri.Path.Count);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://example.com/a/../b#fr", "https://example.com/b#fr")]
+        [DataRow("https://example.com/..", "https://example.com/")]  // Do not allow to go above the root
+        [DataRow("https://example.com/../..", "https://example.com/")]  // Do not allow to go above the root
+        [DataRow("https://example.com/../../..", "https://example.com/")]  // Do not allow to go above the root
+        [DataRow("https://example.com/../../../a", "https://example.com/a")]
+        [DataRow("https://example.com/../../../a/b", "https://example.com/a/b")]
+        [DataRow("https://example.com/../../../a/b/..", "https://example.com/a")]
+        [DataRow("https://example.com/../../../a/b/../..", "https://example.com/")]
+        [DataRow("https://example.com/../../../a/b/../../..", "https://example.com/")]
+        [DataRow("https://example.com/a/././b", "https://example.com/a/b")]
+        [DataRow("https://example.com/../a/././b/./.", "https://example.com/a/b")]
+        [DataRow("https://example.com/../a/././b/././..", "https://example.com/a")]
+        public void TpString_GivenPathWithDotSegments_ReturnsNormalizedString(
+            string uriString,
+            string normalizedString
+        ) {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasEmptyPath);
+            Assert.AreEqual(normalizedString, uri.ToString());
+        }
     }
 }
