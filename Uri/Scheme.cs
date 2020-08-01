@@ -12,26 +12,32 @@ using System.Text;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Scheme component of a URI.
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.1">RFC 3986 (Section 3.1)</seealso>
+    /// </summary>
+    internal class SchemeComponent
     {
         /// <summary>
-        /// This property represents the Scheme of a URI. The property will always contain
-        /// non-empty string, since the scheme is a required component of the URI.
+        /// This property represents the Scheme of a URI.
         /// </summary>
         /// <remarks>
         /// The property contains a lowercase representation of the scheme.
         /// </remarks>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.1">RFC 3986 (Section 3.1)</seealso>
-        public string Scheme { get; private set; }
+        internal string Scheme { get; }
+
 
         /// <summary>
-        /// This property returns an indication of whether or not the URI has a Scheme component.
+        /// This constructor sets the value of <see cref="Scheme" /> to the given <paramref name="schemeString" />.
         /// </summary>
-        /// <value>
-        /// The value of this property will always be true since the Scheme is a required
-        /// component of the URI.
-        /// </value>
-        public bool HasScheme => Scheme != null;
+        /// <param name="schemeString">
+        /// This is a string representation of the Scheme component of the URI.
+        /// </param>
+        private SchemeComponent(string schemeString)
+        {
+            Scheme = schemeString;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns
@@ -41,12 +47,12 @@ namespace Uri
         /// This is the URI encoded as string. This parameter must not be null.
         /// </param>
         /// <returns>
-        /// A pair of a lowercase string representing the Scheme of the URI and the
+        /// A pair of an <see cref="SchemeComponent" /> object and the
         /// offset of the reset of <paramref name="uriString"/> is returned.
         /// if the URI does not contain the Scheme, which is an equivalent of being
         /// ill-formed, a pair of null and -1 is returned.
         /// </returns>
-        private static (string Scheme, int Offset) GetSchemeComponent(string uriString)
+        internal static (SchemeComponent Scheme, int Offset) FromString(string uriString)
         {
             if (uriString.Length == 0 || !char.IsLetter(uriString[0]))
             {
@@ -62,7 +68,7 @@ namespace Uri
             var scheme = uriString.Substring(0, delimiterIndex).ToLower();
 
             return scheme.All(ch => SchemeAllowedCharacters.Contains(ch))
-                ? (scheme, delimiterIndex + 1) : (null, -1);
+                ? (new SchemeComponent(scheme), delimiterIndex + 1) : (null, -1);
         }
 
         /// <summary>
@@ -89,7 +95,7 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Scheme component will be added.
         /// </param>
-        private void BuildSchemeString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
             if (Scheme != null)
             {

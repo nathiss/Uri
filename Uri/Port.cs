@@ -11,7 +11,11 @@ using Uri.Exceptions;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Port component of a URI.
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.3">RFC 3986 (Section 3.2.3)</seealso>
+    /// </summary>
+    internal class PortComponent
     {
         /// <summary>
         /// This property represents the Port of a URI. If the port component was not present
@@ -21,13 +25,37 @@ namespace Uri
         /// If the Port component of the URI is present but empty, the value of this property
         /// is zero.
         /// </value>
-        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
-        public int Port { get; private set; }
+        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.3">RFC 3986 (Section 3.2.3)</seealso>
+        internal int Port { get; }
 
         /// <summary>
-        /// This property returns an indication of whether or not the URI has a Port component.
+        /// This method returns a string representation of the Port component.
         /// </summary>
-        public bool HasPort => Port != -1 && Port != 0;
+        /// <returns>
+        /// A string representation of the Port component is returned.
+        /// </returns>
+        public override string ToString() => Port.ToString();
+
+        /// <summary>
+        /// This method returns an indication of whether or not the URI has the Port component.
+        /// </summary>
+        /// <returns>
+        /// An indication of whether or not the URI has the Port component is returned.
+        /// </returns>
+        internal bool HasPort => Port != 0;
+
+        /// <summary>
+        /// This constructor sets the given <paramref name="port" /> as the port value of this
+        /// instance.
+        /// </summary>
+        /// <param name="port">
+        /// This is the port number from the URI. Value -1 indicates that the URI does not have the Port
+        /// component.
+        /// </param>
+        private PortComponent(int port)
+        {
+            Port = port;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the port of
@@ -45,27 +73,27 @@ namespace Uri
         /// this method will return -1.
         /// </param>
         /// <returns>
-        /// A integer representing the port component of the URI is returned.
+        /// A <see cref="PortComponent" /> object representing the port component of the URI is returned.
         /// </returns>
         /// <exception cref="InvalidUriException">
         /// If the port component of the URI contains non-digit character an exception of
         /// this type is thrown.
         /// </exception>
-        private static int GetPortComponent(string authority, int offset)
+        internal static PortComponent FromString(string authority, int offset)
         {
             if (string.IsNullOrWhiteSpace(authority))
             {
-                return -1;
+                return null;
             }
 
             if (offset >= authority.Length)
             {
                 if (authority[offset - 1] == ':')
                 {
-                    return 0;
+                    return new PortComponent(0);
                 }
 
-                return -1;
+                return null;
             }
 
             var portString = authority.Substring(offset);
@@ -75,7 +103,7 @@ namespace Uri
                 throw new InvalidUriException();
             }
 
-            return port;
+            return new PortComponent(port);
         }
 
         /// <summary>
@@ -85,11 +113,11 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Port component will be added.
         /// </param>
-        private void BuildPortString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
             if (HasPort)
             {
-                uriBuilder.Append(':').Append(Port.ToString());
+                uriBuilder.Append(':').Append(ToString());
             }
         }
     }

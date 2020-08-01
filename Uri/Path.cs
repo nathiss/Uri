@@ -14,7 +14,11 @@ using Uri.PercentEncoding;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Path component of an URI.
+    /// </summary>
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.3">RFC 3986 (Section 3.3)</seealso>
+    internal class PathComponent
     {
         /// <summary>
         /// This property represents the Path of a URI. If the path component of the URI
@@ -25,12 +29,25 @@ namespace Uri
         /// collection will be an empty string.
         /// </remarks>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.3">RFC 3986 (Section 3.3)</seealso>
-        public IList<string> Path { get; private set; }
+        internal IList<string> Segments { get; } = new List<string>();
 
         /// <summary>
-        /// This property returns an indication of whether or not the Path component of the URI is empty.
+        /// This is the default constructor of this class. It sets the value of <see cref="Segments" />
+        /// to a collection of zero elements.
         /// </summary>
-        public bool HasEmptyPath => Path.Count == 0;
+        private PathComponent() { }
+
+        /// <summary>
+        /// This constructor sets the given <paramref name="segments" /> as the collection of
+        /// Path segments of this instance.
+        /// </summary>
+        /// <param name="segments">
+        /// This is the collection of segments of the Path component.
+        /// </param>
+        private PathComponent(IList<string> segments)
+        {
+            Segments = segments;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns the path
@@ -49,10 +66,10 @@ namespace Uri
         /// An indication of whether of not the URI has an authority component.
         /// </param>
         /// <returns>
-        /// A pair of collection of path segments and the offset of the rest of
+        /// A pair of a <see cref="PathComponent" /> object and the offset of the rest of
         /// <paramref name="uriString"/> is returned. If the path segment of the URI
-        /// is empty this method will return a pair of empty collection and an offset
-        /// equal to the given <paramref name="offset"/>.
+        /// is empty this method will return a pair of <see cref="PathComponent" /> object
+        /// representing empty collection and an offset equal to the given <paramref name="offset"/>.
         /// </returns>
         /// <exception cref="InvalidUriException">
         /// An exception of this type is thrown if:
@@ -70,11 +87,11 @@ namespace Uri
         /// </item>
         /// </list>
         /// </exception>
-        private static (IList<string> Path, int Offset) GetPathComponent(string uriString, int offset, bool hasAuthority)
+        internal static (PathComponent Path, int Offset) FromString(string uriString, int offset, bool hasAuthority)
         {
             if (offset >= uriString.Length)
             {
-                return (new List<string>(), offset);
+                return (new PathComponent(), offset);
             }
 
             var endOfPath = uriString.IndexOfAny(new[] {'?', '#'}, offset);
@@ -85,7 +102,7 @@ namespace Uri
                 // Path component must either be empty of begin with a slash ("/").
                 if (uriString[offset] == '?' || uriString[offset] == '#')
                 {
-                    return (new List<string>() , offset);
+                    return (new PathComponent() , offset);
                 }
 
                 if (uriString[offset] != '/')
@@ -99,7 +116,7 @@ namespace Uri
 
                 if (pathString == "/")
                 {
-                    return (new List<string> {""}, newOffset);
+                    return (new PathComponent(new List<string>{""}), newOffset);
                 }
 
                 if (!pathString.All(ch => PathAllowedCharacters.Contains(ch)))
@@ -121,7 +138,7 @@ namespace Uri
 
                 pathSegments = pathSegments.Select(segment => PercentDecoder.Decode(segment)).ToList();
 
-                return (pathSegments, newOffset);
+                return (new PathComponent(pathSegments), newOffset);
             }
 
             // "Path component cannot begin with two slashes ("//")."
@@ -148,7 +165,7 @@ namespace Uri
 
                 pathSegments = pathSegments.Select(segment => PercentDecoder.Decode(segment)).ToList();
 
-                return (pathSegments, newOffset);
+                return (new PathComponent(pathSegments), newOffset);
             }
         }
 
@@ -195,20 +212,20 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Path component will be added.
         /// </param>
-        private void BuildPathString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
-            if (Path.Count == 0)
+            if (Segments.Count == 0)
             {
                 return;
             }
 
-            if (Path[0] == string.Empty && Path.Count == 1)
+            if (Segments[0] == string.Empty && Segments.Count == 1)
             {
                 uriBuilder.Append("/");
             }
             else
             {
-                uriBuilder.AppendJoin('/', Path.Select(PercentEncoder.Encode));
+                uriBuilder.AppendJoin('/', Segments.Select(PercentEncoder.Encode));
             }
         }
 

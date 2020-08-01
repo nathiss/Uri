@@ -14,19 +14,30 @@ using Uri.PercentEncoding;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the UserInformation component of a URI.
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.1">RFC 3986 (Section 3.2.1)</seealso>
+    /// </summary>
+    internal class UserInformationComponent
     {
         /// <summary>
         /// This property represents the User Information of a URI. If the user information
         /// component was not present in the URI, the value of this property will be null.
         /// </summary>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.1">RFC 3986 (Section 3.2.1)</seealso>
-        public string UserInformation { get; private set; }
+        internal string UserInformation { get; }
 
         /// <summary>
-        /// This property returns an indication of whether or not the URI has a UserInformation component.
+        /// This constructor sets the value of <see cref="UserInformation" /> to the given
+        /// <paramref name="userInformationString" />.
         /// </summary>
-        public bool HasUserInformation => UserInformation != null;
+        /// <param name="userInformationString">
+        /// This is a string representation of the UserInformation component of the URI.
+        /// </param>
+        private UserInformationComponent(string userInformationString)
+        {
+            UserInformation = userInformationString;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the user information
@@ -37,13 +48,13 @@ namespace Uri
         /// This is the authority component of the URI.
         /// </param>
         /// <returns>
-        /// A pair of a string representing the user information and the offset of the rest
+        /// A pair of an <see cref="UserInformation" /> object and the offset of the rest
         /// of <paramref name="authority"/> is returned. If the authority does not have a user
         /// information component this method returns a pair of null and zero.
         /// If the given <paramref name="authority"/> string is null, this method returns a pair of
         /// null and zero.
         /// </returns>
-        private static (string UserInformation, int Offset) GetUserInformationComponent(string authority)
+        internal static (UserInformationComponent UserInformation, int Offset) FromString(string authority)
         {
             if (string.IsNullOrWhiteSpace(authority))
             {
@@ -56,14 +67,16 @@ namespace Uri
                 return (null, 0);
             }
 
-            var userInformation = authority.Substring(0, endOfUserInformation);
+            var userInformationString = authority.Substring(0, endOfUserInformation);
 
-            if (!userInformation.All(ch => UserInformationAllowedCharacters.Contains(ch)))
+            if (!userInformationString.All(ch => UserInformationAllowedCharacters.Contains(ch)))
             {
                 throw new InvalidUriException();
             }
 
-            return (PercentDecoder.Decode(userInformation), endOfUserInformation + 1);
+            var userInformation = new UserInformationComponent(PercentDecoder.Decode(userInformationString));
+
+            return (userInformation, endOfUserInformation + 1);
         }
 
         /// <summary>
@@ -105,9 +118,9 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the UserInformation component will be added.
         /// </param>
-        private void BuildUserInformationString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
-            if (HasUserInformation)
+            if (UserInformation != null)
             {
                 uriBuilder
                     .Append(PercentEncoder.Encode(UserInformation, UserInformationAllowedCharacters))

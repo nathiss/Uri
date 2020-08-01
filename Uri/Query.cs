@@ -14,7 +14,11 @@ using Uri.PercentEncoding;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Query component of a URI.
+    /// </summary>
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
+    internal class QueryComponent
     {
         /// <summary>
         /// This property represents the Query component of a URI. If the component was not present
@@ -26,12 +30,7 @@ namespace Uri
         /// In order to use Query component with decoded percent-encoded characters use <see cref="Query" />.
         /// </remarks>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
-        public string QueryString { get; private set; }
-
-        /// <summary>
-        /// This property returns an indication of whether or not the URI has the Query component.
-        /// </summary>
-        public bool HasQuery => QueryString != null;
+        internal string QueryString { get; }
 
         /// <summary>
         /// This property represents the Query component of the URI parsed into key-values pairs.
@@ -43,12 +42,26 @@ namespace Uri
         /// collection of zero elements.
         /// </value>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986 (Section 3.4)</seealso>
-        public IReadOnlyList<KeyValuePair<string, string>> Query { get; private set; }
+        internal IReadOnlyList<KeyValuePair<string, string>> Segments { get; private set; }
+
+        /// <summary>
+        /// This constructors sets the given <paramref name="queryString" /> as a string
+        /// representation of the Query component and performs the parsing of the Query component.
+        /// </summary>
+        /// <param name="queryString">
+        /// This is a string representation of the Query component.
+        /// </param>
+        /// <seealso cref="ParseQuery" />
+        private QueryComponent(string queryString)
+        {
+            QueryString = queryString;
+            ParseQuery();
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns the query of
         /// the URI, if the URI does not have the query component this method will return
-        ///  a pair of null and an offset equal to the given <paramref name="offset"/>.
+        /// a pair of null and an offset equal to the given <paramref name="offset"/>.
         /// If the Query component of the URI is empty, this method will return a pair of
         /// <see cref="string.Empty"/> and an offset equal to the given <paramref name="offset"/>.
         /// </summary>
@@ -62,14 +75,14 @@ namespace Uri
         /// offset equal to the given <paramref name="offset"/>.
         /// </param>
         /// <returns>
-        /// A pair of the string representation of the Query component and an offset
+        /// A pair of a <see cref="QueryComponent" /> object and an offset
         /// of the rest of the <paramref name="uriString"/> is returned.
         /// </returns>
         /// <exception cref="InvalidUriException">
         /// If the query component contains not allowed characters an exception of this type
         /// is thrown.
         /// </exception>
-        private static (string Query, int Offset) GetQueryComponent(string uriString, int offset)
+        internal static (QueryComponent Query, int Offset) FromString(string uriString, int offset)
         {
             if (offset >= uriString.Length || uriString[offset] != '?')
             {
@@ -79,10 +92,10 @@ namespace Uri
             var endOfQuery = uriString.IndexOf('#', offset + 1);
 
             var query = endOfQuery == -1
-                ? (uriString.Substring(offset + 1), uriString.Length)
-                : (uriString.Substring(offset + 1, endOfQuery - offset - 1), endOfQuery);
+                ? (new QueryComponent(uriString.Substring(offset + 1)), uriString.Length)
+                : (new QueryComponent(uriString.Substring(offset + 1, endOfQuery - offset - 1)), endOfQuery);
 
-            if (!query.Item1.All(ch => QueryAllowedCharacters.Contains(ch)))
+            if (!query.Item1.QueryString.All(ch => QueryAllowedCharacters.Contains(ch)))
             {
                 throw new InvalidUriException();
             }
@@ -125,36 +138,33 @@ namespace Uri
         };
 
         /// <summary>
-        /// This method parses the given <paramref name="query"/> component and return a collection
-        /// of key-value pairs.
+        /// This method parses <see cref="QueryString" /> into a collection of key-value
+        /// pairs.
         /// </summary>
-        /// <param name="query">
-        /// This is the query component of the URI. The Query component must be well-formed.
-        /// </param>
-        /// <returns>
+        /// <remarks>
         /// A collection of key-value pairs representing the URI's query component is returned.
         /// If the URI doesn't have the Query component this method returns null.
         /// If the Query component of the URI is empty, this method returns a collection of zero
         /// elements.
-        /// </returns>
-        /// <remarks>
         /// If a key-value element of the Query component has more than one equal sign ("="), then
         /// the first occurrence of the equal sign will be treated as a separator and the others as
         /// a part of value.
         /// </remarks>
-        private static IReadOnlyList<KeyValuePair<string, string>> ParseQuery(string query)
+        private void ParseQuery()
         {
-            if (query == null)
+            if (QueryString == null)
             {
-                return null;
+                Segments = null;
+                return;
             }
 
-            if (string.IsNullOrWhiteSpace(query))
+            if (string.IsNullOrWhiteSpace(QueryString))
             {
-                return new List<KeyValuePair<string, string>>();
+                Segments = new List<KeyValuePair<string, string>>();
+                return;
             }
 
-            return query
+            Segments = QueryString
                 .Split('&')
                 .Select(keyValueString => keyValueString.Split('=', 2))
                 .Select(
@@ -175,14 +185,14 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Query component will be added.
         /// </param>
-        private void BuildQueryString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
-            if (Query == null || Query.Count == 0)
+            if (Segments == null || Segments.Count == 0)
             {
                 return;
             }
 
-            var keyValuePairs = Query
+            var keyValuePairs = Segments
                 .Select(kv => new KeyValuePair<string, string>(
                     PercentEncoder.Encode(kv.Key, null, ExtraNotAllowedCharacters),
                     PercentEncoder.Encode(kv.Value, ExtraAllowedCharacters, ExtraNotAllowedCharacters)
@@ -208,7 +218,7 @@ namespace Uri
             '=',
         };
 
-                /// <summary>
+        /// <summary>
         /// This collection contains extra characters that will be percent-encoding if found
         /// inside Query component.
         /// </summary>

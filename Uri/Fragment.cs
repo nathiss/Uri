@@ -14,23 +14,28 @@ using Uri.PercentEncoding;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Fragment component of a URI.
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.5">RFC 3986 (Section 3.5)</seealso>
+    /// </summary>
+    internal class FragmentComponent
     {
         /// <summary>
-        /// This property represents the Fragment component of the URI. If the URI does not have the Fragment
-        /// component, then the value of this property is null.
+        /// This property holds a string representation of the Fragment component of an URI.
         /// </summary>
-        /// <value>
-        /// If the Fragment component is present but empty, the value of this property is
-        /// <seealso cref="string.Empty"/>.
-        /// </value>
-        /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.5">RFC 3986 (Section 3.5)</seealso>
-        public string Fragment { get; private set; }
+        /// <seealso cref="Uri" />
+        internal string Fragment { get; }
 
         /// <summary>
-        /// This property returns an indication of whether or not the URI has the Fragment component.
+        /// This constructor sets the value of <see cref="Fragment" /> property.
         /// </summary>
-        public bool HasFragment => Fragment != null;
+        /// <param name="fragmentString">
+        /// This is a string representation of the Fragment component of an URI.
+        /// </param>
+        private FragmentComponent(string fragmentString)
+        {
+            Fragment = fragmentString;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="uriString"/> and returns the Fragment of
@@ -47,13 +52,13 @@ namespace Uri
         /// of <paramref name="uriString"/> this method will return null.
         /// </param>
         /// <returns>
-        /// A string representation of the Fragment component is returned.
+        /// A <see cref="FragmentComponent" /> object is returned.
         /// </returns>
         /// <exception cref="InvalidUriException">
         /// If the Fragment component contains not allowed characters an exception of this type
         /// is thrown.
         /// </exception>
-        private static string GetFragmentComponent(string uriString, int offset)
+        internal static FragmentComponent FromString(string uriString, int offset)
         {
             if (offset >= uriString.Length)
             {
@@ -72,7 +77,7 @@ namespace Uri
                 throw new InvalidUriException();
             }
 
-            return PercentDecoder.Decode(targetString);
+            return new FragmentComponent(PercentDecoder.Decode(targetString));
         }
 
         /// <summary>
@@ -117,7 +122,7 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Fragment component will be added.
         /// </param>
-        private void BuildFragmentString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
             if (!string.IsNullOrEmpty(Fragment))
             {

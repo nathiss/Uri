@@ -16,19 +16,29 @@ using Uri.PercentEncoding;
 
 namespace Uri
 {
-    public partial class Uri
+    /// <summary>
+    /// This class represents the Host component of a URI.
+    /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
+    /// </summary>
+    internal class HostComponent
     {
         /// <summary>
         /// This property represents the Host of a URI. If the host component was not present
         /// in the URI, the value of this property will be null.
         /// </summary>
         /// <seealso href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986 (Section 3.2.2)</seealso>
-        public string Host { get; private set; }
+        internal string Host { get; }
 
         /// <summary>
-        /// This property returns an indication of whether or not the URI has a Host component.
+        /// This constructor sets the value of <see cref="Host" /> to the given <paramref name="hostString" />.
         /// </summary>
-        public bool HasHost => Host != null;
+        /// <param name="hostString">
+        /// This is a string representation of the Host component of the URI.
+        /// </param>
+        private HostComponent(string hostString)
+        {
+            Host = hostString;
+        }
 
         /// <summary>
         /// This method parses the given <paramref name="authority"/> and returns the host of
@@ -46,9 +56,9 @@ namespace Uri
         /// offset and false.
         /// </param>
         /// <returns>
-        /// A tuple of a lowercase string representing the host component of the URI, the
-        /// offset of the rest of the given <paramref name="authority"/> and an indication
-        /// of whether or not the host component is a ip-literal is returned.
+        /// A tuple of a <see cref="Host" /> object, the offset of the rest of the given
+        /// <paramref name="authority"/> and an indication of whether or not the host
+        /// component is a ip-literal is returned.
         /// If the URI has the authority component, but does not have the host component,
         /// then the URI is ill-formed and this method will throw an exception of type
         /// <see cref="InvalidUriException"/>.
@@ -64,13 +74,13 @@ namespace Uri
         /// </item>
         /// </list>
         /// </exception>
-        private static (string Host, int Offset, bool IsIpLiteral) GetHostComponent(string authority, int offset)
+        internal static (HostComponent Host, int Offset, bool IsIpLiteral) FromString(string authority, int offset)
         {
             // If the authority component is present, then the host component is mandatory, though
             // it might be empty.
             if (authority == string.Empty)
             {
-                return (string.Empty, offset, false);
+                return (new HostComponent(string.Empty), offset, false);
             }
 
             // Parse IP-Literal
@@ -90,8 +100,8 @@ namespace Uri
                 if (ip6Address != null)
                 {
                     return colonAfterIpLiteralHost == -1
-                        ? (ip6Address, endOfIpLiteralHost + 1, true)
-                        : (ip6Address, endOfIpLiteralHost + 2, true);
+                        ? (new HostComponent(ip6Address), endOfIpLiteralHost + 1, true)
+                        : (new HostComponent(ip6Address), endOfIpLiteralHost + 2, true);
                 }
 
                 // IPvFuture
@@ -99,8 +109,8 @@ namespace Uri
                 if (ipFuture != null)
                 {
                     return colonAfterIpLiteralHost == -1
-                        ? (ipFuture, endOfIpLiteralHost + 1, true)
-                        : (ipFuture, endOfIpLiteralHost + 2, true);
+                        ? (new HostComponent(ipFuture), endOfIpLiteralHost + 1, true)
+                        : (new HostComponent(ipFuture), endOfIpLiteralHost + 2, true);
                 }
 
                 throw new InvalidUriException();
@@ -123,8 +133,8 @@ namespace Uri
             if (regNameHost != null)
             {
                 return endOfHost == -1 ?
-                    (regNameHost, authority.Length, false) :
-                    (regNameHost, endOfHost + 1, false);
+                    (new HostComponent(regNameHost), authority.Length, false) :
+                    (new HostComponent(regNameHost), endOfHost + 1, false);
             }
 
             throw new InvalidUriException();
@@ -381,9 +391,9 @@ namespace Uri
         /// <param name="uriBuilder">
         /// This is the <see cref="StringBuilder" /> into which the Host component will be added.
         /// </param>
-        private void BuildHostString(StringBuilder uriBuilder)
+        internal void BuildEncodedString(StringBuilder uriBuilder)
         {
-            if (HasHost)
+            if (Host != null)
             {
                 uriBuilder.Append(PercentEncoder.Encode(Host));
             }
