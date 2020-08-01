@@ -208,7 +208,7 @@ namespace Uri
             }
             else
             {
-                uriBuilder.AppendJoin('/', Path);
+                uriBuilder.AppendJoin('/', Path.Select(PercentEncoder.Encode));
             }
         }
 

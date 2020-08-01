@@ -1095,5 +1095,22 @@ namespace Uri.Tests
             // Assert
             Assert.AreEqual(result, uriToStringResult);
         }
+
+        [DataTestMethod]
+        [DataRow("https://userd@example.com:8080/pat%20h", "https://userd@example.com:8080/pat%20h")]
+        [DataRow("https://userasswd@example.com:8080/pa%20%20th", "https://userasswd@example.com:8080/pa%20%20th")]
+        [DataRow("https://userss@example.com:8080/pat%2fh", "https://userss@example.com:8080/pat%2Fh")]
+        public void ToString_GivenPathWithPercentEncodedChars_ReturnsProperlyEncodedString(
+            string uriString, string result)
+        {
+            // Arrange
+            var uri = Uri.FromString(uriString);
+
+            // Act
+            var uriToStringResult = uri.ToString();
+
+            // Assert
+            Assert.AreEqual(result, uriToStringResult);
+        }
     }
 }
