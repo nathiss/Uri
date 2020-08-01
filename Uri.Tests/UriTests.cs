@@ -309,16 +309,6 @@ namespace Uri.Tests
         }
 
         [TestMethod]
-        public void FromString_SchemeWithoutEndingColon_ReturnsNull()
-        {
-            // Act
-            var uri = Uri.FromString("https");
-
-            // Assert
-            Assert.IsNull(uri);
-        }
-
-        [TestMethod]
         public void FromString_AuthorityMixedCapitalization_AuthorityNormalizedAndHostNormalized()
         {
             // Act
@@ -1155,6 +1145,159 @@ namespace Uri.Tests
 
             // Assert
             Assert.AreEqual("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenStringWithoutSchemeWithAuthority_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.IsNull(uri.Scheme);
+            Assert.IsFalse(uri.HasScheme);
+
+            Assert.AreEqual("user@example.com:8080", uri.Authority);
+        }
+
+        [TestMethod]
+        public void ToString_GivenStringWithoutSchemeWithAuthority_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.AreEqual("//user@example.com:8080/foo/bar?key1=value1#fragment", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenStringWithoutSchemeAuthorityWithPath_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("/foo/bar?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.IsNull(uri.Scheme);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsNull(uri.Authority);
+            Assert.IsFalse(uri.HasAuthority);
+
+            Assert.AreEqual(3, uri.Path.Count);
+            Assert.AreEqual("foo", uri.Path[1]);
+            Assert.AreEqual("bar", uri.Path[2]);
+        }
+
+        [TestMethod]
+        public void ToString_GivenStringWithoutSchemeAuthorityWithPath_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("/foo/bar?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.AreEqual("/foo/bar?key1=value1#fragment", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenStringWithoutSchemeAuthorityPathWithQuery_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.IsNull(uri.Scheme);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsNull(uri.Authority);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.IsTrue(uri.HasEmptyPath);
+
+            Assert.AreEqual(1, uri.Query.Count);
+            Assert.AreEqual("key1", uri.Query[0].Key);
+            Assert.AreEqual("value1", uri.Query[0].Value);
+        }
+
+        [TestMethod]
+        public void ToString_GivenStringWithoutSchemeAuthorityPathWithQuery_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("?key1=value1#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.AreEqual("?key1=value1#fragment", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenStringWithoutSchemeAuthorityPathQueryWithFragment_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.IsNull(uri.Scheme);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsNull(uri.Authority);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.IsTrue(uri.HasEmptyPath);
+            Assert.IsNull(uri.Query);
+            Assert.IsFalse(uri.HasQuery);
+
+            Assert.AreEqual("fragment", uri.Fragment);
+        }
+
+        [TestMethod]
+        public void ToString_GivenStringWithoutSchemeAuthorityPathQueryWithFragment_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("#fragment");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.AreEqual("#fragment", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenStringWithRelativePathOnly_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("thisIsARelativePath");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.IsFalse(uri.HasEmptyPath);
+            Assert.IsFalse(uri.HasQuery);
+            Assert.IsFalse(uri.HasFragment);
+
+            Assert.AreEqual(1, uri.Path.Count);
+            Assert.AreEqual("thisIsARelativePath", uri.Path[0]);
+        }
+
+        [TestMethod]
+        public void ToString_GivenStringWithRelativePathOnly_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("thisIsARelativePath");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsTrue(uri.IsRelativeReference);
+            Assert.AreEqual("thisIsARelativePath", uri.ToString());
         }
     }
 }

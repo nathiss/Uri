@@ -145,6 +145,17 @@ namespace Uri
             // Scenario in which the path component begins with two slashes is not
             // possible since if the URI string contains two slashes after the scheme
             // component we're treating the following as an authority component.
+
+            // Special case for relative reference URIs.
+            if (offset == 0)
+            {
+                if (uriString[offset] == '?' || uriString[offset] == '#')
+                {
+                    return (new PathComponent(), offset);
+                }
+            }
+
+
             {
                 var pathString = endOfPath == -1
                     ? uriString.Substring(offset)

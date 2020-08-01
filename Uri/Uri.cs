@@ -43,12 +43,8 @@ namespace Uri
             try
             {
                 var scheme = SchemeComponent.FromString(uriString);
-                if (scheme.Scheme == null)
-                {
-                    return null;
-                }
 
-                var uri = new Uri {_scheme = scheme.Scheme};
+                var uri = new Uri { _scheme = scheme.Scheme };
 
                 var authority = AuthorityComponent.FromString(uriString, scheme.Offset);
                 uri._authority = authority.Authority;
@@ -87,6 +83,11 @@ namespace Uri
 
             return uriBuilder.ToString();
         }
+
+        /// <summary>
+        /// This method returns an indication of whether or not the URI is a relative reference URI.
+        /// </summary>
+        public bool IsRelativeReference => HasScheme == false;
 
         /// <summary>
         /// This field represents the Scheme of a URI. If the Scheme component was

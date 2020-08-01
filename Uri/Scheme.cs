@@ -9,6 +9,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Uri.Exceptions;
 
 namespace Uri
 {
@@ -49,26 +50,29 @@ namespace Uri
         /// <returns>
         /// A pair of an <see cref="SchemeComponent" /> object and the
         /// offset of the reset of <paramref name="uriString"/> is returned.
-        /// if the URI does not contain the Scheme, which is an equivalent of being
-        /// ill-formed, a pair of null and -1 is returned.
+        /// if the URI does not contain the Scheme, a pair of null and 0 is returned.
         /// </returns>
         internal static (SchemeComponent Scheme, int Offset) FromString(string uriString)
         {
             if (uriString.Length == 0 || !char.IsLetter(uriString[0]))
             {
-                return (null, -1);
+                return (null, 0);
             }
 
             var delimiterIndex = uriString.IndexOf(':');
             if (delimiterIndex == -1)
             {
-                return (null, -1);
+                return (null, 0);
             }
 
             var scheme = uriString.Substring(0, delimiterIndex).ToLower();
 
-            return scheme.All(ch => SchemeAllowedCharacters.Contains(ch))
-                ? (new SchemeComponent(scheme), delimiterIndex + 1) : (null, -1);
+            if (!scheme.All(ch => SchemeAllowedCharacters.Contains(ch)))
+            {
+                throw new InvalidUriException();
+            }
+
+            return (new SchemeComponent(scheme), delimiterIndex + 1);
         }
 
         /// <summary>
