@@ -30,14 +30,23 @@ namespace Uri
         internal string Host { get; }
 
         /// <summary>
+        /// This property holds an indication of whether or not the Host component is a IP Literal Host.
+        /// </summary>
+        internal bool IsIpLiteralHost { get; }
+
+        /// <summary>
         /// This constructor sets the value of <see cref="Host" /> to the given <paramref name="hostString" />.
         /// </summary>
         /// <param name="hostString">
         /// This is a string representation of the Host component of the URI.
         /// </param>
-        private HostComponent(string hostString)
+        /// <param name="isIpLiteralHost">
+        /// This is an indication of whether or not the Host component is a IP Literal Host.
+        /// </param>
+        private HostComponent(string hostString, bool isIpLiteralHost = false)
         {
             Host = hostString;
+            IsIpLiteralHost = isIpLiteralHost;
         }
 
         /// <summary>
@@ -100,8 +109,8 @@ namespace Uri
                 if (ip6Address != null)
                 {
                     return colonAfterIpLiteralHost == -1
-                        ? (new HostComponent(ip6Address), endOfIpLiteralHost + 1, true)
-                        : (new HostComponent(ip6Address), endOfIpLiteralHost + 2, true);
+                        ? (new HostComponent(ip6Address, true), endOfIpLiteralHost + 1, true)
+                        : (new HostComponent(ip6Address, true), endOfIpLiteralHost + 2, true);
                 }
 
                 // IPvFuture
@@ -109,8 +118,8 @@ namespace Uri
                 if (ipFuture != null)
                 {
                     return colonAfterIpLiteralHost == -1
-                        ? (new HostComponent(ipFuture), endOfIpLiteralHost + 1, true)
-                        : (new HostComponent(ipFuture), endOfIpLiteralHost + 2, true);
+                        ? (new HostComponent(ipFuture, true), endOfIpLiteralHost + 1, true)
+                        : (new HostComponent(ipFuture, true), endOfIpLiteralHost + 2, true);
                 }
 
                 throw new InvalidUriException();
@@ -395,8 +404,27 @@ namespace Uri
         {
             if (Host != null)
             {
-                uriBuilder.Append(PercentEncoder.Encode(Host));
+                if (IsIpLiteralHost)
+                {
+                    uriBuilder
+                        .Append('[')
+                        .Append(PercentEncoder.Encode(Host, ExtraAllowedIpLiteralHostCharacters))
+                        .Append(']');
+                }
+                else
+                {
+                    uriBuilder.Append(PercentEncoder.Encode(Host));
+                }
+
             }
         }
+
+        /// <summary>
+        /// This collection contains all extra characters that are allowed inside a IP Literal Host.
+        /// </summary>
+        private static readonly HashSet<char> ExtraAllowedIpLiteralHostCharacters = new HashSet<char>
+        {
+            ':',
+        };
     }
 }

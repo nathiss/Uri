@@ -1146,5 +1146,15 @@ namespace Uri.Tests
             // Assert
             Assert.AreEqual(result, uriToStringResult);
         }
+
+        [TestMethod]
+        public void ToString_GivenUriWithIpLiteralHost_ReturnsTheSameString()
+        {
+            // Act
+            var uri = Uri.FromString("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment");
+
+            // Assert
+            Assert.AreEqual("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment", uri.ToString());
+        }
     }
 }
