@@ -183,7 +183,10 @@ namespace Uri
             }
 
             var keyValuePairs = Query
-                .Select(kv =>
+                .Select(kv => new KeyValuePair<string, string>(
+                    PercentEncoder.Encode(kv.Key, null, ExtraNotAllowedCharacters),
+                    PercentEncoder.Encode(kv.Value, ExtraAllowedCharacters, ExtraNotAllowedCharacters)
+                )).Select(kv =>
                 {
                     if (kv.Value != null)
                     {
@@ -195,5 +198,23 @@ namespace Uri
 
             uriBuilder.Append('?').AppendJoin('&', keyValuePairs);
         }
+
+        /// <summary>
+        /// This collection contains extra characters that will not be percent-encoding if found
+        /// inside Query component.
+        /// </summary>
+        private static readonly HashSet<char> ExtraAllowedCharacters = new HashSet<char>
+        {
+            '=',
+        };
+
+                /// <summary>
+        /// This collection contains extra characters that will be percent-encoding if found
+        /// inside Query component.
+        /// </summary>
+        private static readonly HashSet<char> ExtraNotAllowedCharacters = new HashSet<char>
+        {
+            '&',
+        };
     }
 }

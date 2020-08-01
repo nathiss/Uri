@@ -1112,5 +1112,22 @@ namespace Uri.Tests
             // Assert
             Assert.AreEqual(result, uriToStringResult);
         }
+
+        [DataTestMethod]
+        [DataRow("https://userd@example.com:8080/pat%20h?ke%20", "https://userd@example.com:8080/pat%20h?ke%20")]
+        [DataRow("https://userasswd@example.com:8080/pa%20%20th?key%3Dvalue", "https://userasswd@example.com:8080/pa%20%20th?key%3Dvalue")]
+        [DataRow("https://userss@example.com:8080/pat%2fh?a=value%26b=valu&e", "https://userss@example.com:8080/pat%2Fh?a=value%26b=valu&e")]
+        public void ToString_GivenQueryWithPercentEncodedChars_ReturnsProperlyEncodedString(
+            string uriString, string result)
+        {
+            // Arrange
+            var uri = Uri.FromString(uriString);
+
+            // Act
+            var uriToStringResult = uri.ToString();
+
+            // Assert
+            Assert.AreEqual(result, uriToStringResult);
+        }
     }
 }
