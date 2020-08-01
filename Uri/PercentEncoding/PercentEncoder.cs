@@ -30,7 +30,7 @@ namespace Uri.PercentEncoding
         /// </returns>
         public static string Encode(string segment)
         {
-            return Encode(segment, null, null);
+            return Encode(segment, null);
         }
 
         /// <summary>

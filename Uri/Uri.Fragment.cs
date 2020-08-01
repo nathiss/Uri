@@ -121,7 +121,7 @@ namespace Uri
         {
             if (!string.IsNullOrEmpty(Fragment))
             {
-                uriBuilder.Append('#').Append(Fragment);
+                uriBuilder.Append('#').Append(PercentEncoder.Encode(Fragment));
             }
         }
     }
