@@ -76,16 +76,29 @@ namespace Uri
                 }
                 if (segment == "..")
                 {
-                    var lastElementIndex = normalizedSegments.Count - 1;
-                    if (normalizedSegments.Any() && normalizedSegments[lastElementIndex] != string.Empty)
+                    if (!normalizedSegments.Any())
                     {
-                        normalizedSegments.RemoveAt(normalizedSegments.Count - 1);
+                        normalizedSegments.Add(segment);
+                        continue;
                     }
+
+                    var lastElementIndex = normalizedSegments.Count - 1;
+                    if (normalizedSegments[lastElementIndex] == "..")
+                    {
+                        normalizedSegments.Add(segment);
+                        continue;
+                    }
+
+                    if (normalizedSegments[lastElementIndex] == string.Empty)
+                    {
+                        continue;
+                    }
+
+                    normalizedSegments.RemoveAt(lastElementIndex);
+                    continue;
                 }
-                else
-                {
-                    normalizedSegments.Add(segment);
-                }
+
+                normalizedSegments.Add(segment);
             }
             return normalizedSegments;
         }
@@ -277,9 +290,26 @@ namespace Uri
             }
             else
             {
-                uriBuilder.AppendJoin('/', Segments.Select(PercentEncoder.Encode));
+                // Special case for relative reference URIs. If the first segment of Path component
+                // contains a colon (":"), then the Path should be encoded with a current directory
+                // reference.
+                if (Segments[0].Contains(':'))
+                {
+                    uriBuilder.Append("./");
+                }
+
+                uriBuilder.AppendJoin('/', Segments.Select(segment => PercentEncoder.Encode(segment, ExtraPathSegmentAllowedCharacters)));
             }
         }
+
+        /// <summary>
+        /// This is the collection of characters that are extra allowed inside a path segment and should not be
+        /// percent-encoded.
+        /// </summary>
+        private static readonly HashSet<char> ExtraPathSegmentAllowedCharacters = new HashSet<char>
+        {
+            ':', '@', '*', '+', ',', ';', '=',
+        };
 
     }
 }

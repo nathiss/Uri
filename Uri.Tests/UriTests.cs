@@ -1339,7 +1339,7 @@ namespace Uri.Tests
         [DataRow("https://example.com/a/././b", "https://example.com/a/b")]
         [DataRow("https://example.com/../a/././b/./.", "https://example.com/a/b")]
         [DataRow("https://example.com/../a/././b/././..", "https://example.com/a")]
-        public void TpString_GivenPathWithDotSegments_ReturnsNormalizedString(
+        public void ToString_GivenPathWithDotSegments_ReturnsNormalizedString(
             string uriString,
             string normalizedString
         ) {
@@ -1350,6 +1350,74 @@ namespace Uri.Tests
             Assert.IsNotNull(uri);
             Assert.IsFalse(uri.HasEmptyPath);
             Assert.AreEqual(normalizedString, uri.ToString());
+        }
+
+        [DataTestMethod]
+        [DataRow("a/b/../c", 2)]
+        [DataRow("a/../../c", 2)]
+        [DataRow("a/../../c/../..", 2)]
+        [DataRow("a/../../c/../../..", 3)]
+        [DataRow("a/../../c/../../.", 2)]
+        [DataRow("a/../../c/.././..", 2)]
+        [DataRow("..", 1)]
+        public void FromString_GivenRelativeReferenceWithPathContainingDotSegments_ReturnsValidObject(
+            string uriString,
+            int amountOfPathSegments
+        ) {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.AreEqual(amountOfPathSegments, uri.Path.Count);
+        }
+
+        [DataTestMethod]
+        [DataRow("a/b/../c", "a/c")]
+        [DataRow("a/../../c", "../c")]
+        [DataRow("a/../../c/../..", "../..")]
+        [DataRow("a/../../c/../../..", "../../..")]
+        [DataRow("a/../../c/../../.", "../..")]
+        [DataRow("a/../../c/.././..", "../..")]
+        [DataRow("..", "..")]
+        public void ToString_GivenRelativeReferenceWithPathContainingDotSegments_ReturnsNormalizedPath(
+            string uriString,
+            string normalizedUri
+        ) {
+            // Act
+            var uri = Uri.FromString(uriString);
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.AreEqual(normalizedUri, uri.ToString());
+        }
+
+
+        [TestMethod]
+        public void FromString_GivenRelativeReferenceWithPathContainingColon_ReturnValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("./this:that");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.AreEqual(1, uri.Path.Count);
+        }
+
+        [TestMethod]
+        public void ToString_GivenRelativeReferenceWithPathContainingColon_ReturnsNormalizedPath()
+        {
+            // Act
+            var uri = Uri.FromString("./this:that");
+
+            // Assert
+            Assert.AreEqual("./this:that", uri.ToString());
         }
     }
 }
