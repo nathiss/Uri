@@ -59,8 +59,8 @@ namespace Uri
                 return (null, 0);
             }
 
-            var delimiterIndex = uriString.IndexOf(':');
-            if (delimiterIndex == -1)
+            var delimiterIndex = uriString.IndexOfAny(new[] { ':', '/', '?', '#' });
+            if (delimiterIndex == -1 || uriString[delimiterIndex] != ':')
             {
                 return (null, 0);
             }

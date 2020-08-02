@@ -109,7 +109,6 @@ namespace Uri.Tests
         [DataRow("ssh(://auth.xyz/")]
         [DataRow("s&sh://auth.xyz/")]
         [DataRow("s@sh://auth.xyz/")]
-        [DataRow("s/sh://auth.xyz/")]
         public void FromString_SchemeWithNotAllowedChar_ReturnedNull(string uriString)
         {
             // Act
@@ -1418,6 +1417,33 @@ namespace Uri.Tests
 
             // Assert
             Assert.AreEqual("./this:that", uri.ToString());
+        }
+
+        [TestMethod]
+        public void FromString_GivenUriWithoutSchemeAndWithPathWithDotSegments_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("foo/this:that/bar");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.IsFalse(uri.HasScheme);
+            Assert.IsFalse(uri.HasAuthority);
+            Assert.IsFalse(uri.HasEmptyPath);
+            Assert.AreEqual(3, uri.Path.Count);
+            Assert.AreEqual("this:that", uri.Path[1]);
+            Assert.AreEqual("foo/this:that/bar", uri.ToString());
+        }
+
+        [TestMethod]
+        public void ToString_GivenUriWithoutSchemeAndWithPathWithDotSegments_ReturnsValidObject()
+        {
+            // Act
+            var uri = Uri.FromString("foo/this:that/bar");
+
+            // Assert
+            Assert.IsNotNull(uri);
+            Assert.AreEqual("foo/this:that/bar", uri.ToString());
         }
     }
 }
