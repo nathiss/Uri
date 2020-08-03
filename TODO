@@ -1,8 +1,8 @@
 
 Todo:
-  ☐ Add support for encoding UTF-8 characters inside `Host` component.
-    ☐ Add unit test to cover the scenarios.
-    ☐ Implement functionality.
-  ☐ Add support for representing two-least significant pieces of an IPv6 address as an IPv4 address.
-    ☐ Add unit test to cover the scenarios.
-    ☐ Implement functionality.
+    ☐ Add support for encoding UTF-8 characters inside `Host` component.
+        ☐ Add unit test to cover the scenarios.
+        ☐ Implement functionality.
+    ☐ Add support for representing two-least significant pieces of an IPv6 address as an IPv4 address.
+        ☐ Add unit test to cover the scenarios.
+        ☐ Implement functionality.
