@@ -23,7 +23,6 @@ namespace Uri
         /// <summary>
         /// This property holds a string representation of the Fragment component of an URI.
         /// </summary>
-        /// <seealso cref="Uri" />
         internal string Fragment { get; }
 
         /// <summary>

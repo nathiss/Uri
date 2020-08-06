@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Uri.Tests
 {
     [TestClass]
-    public class UriTests
+    public class UniformResourceIdentifierTests
     {
         [DataTestMethod]
         [DataRow("https://example.com/", "https", "example.com", new[] {""})]
@@ -29,7 +29,7 @@ namespace Uri.Tests
             string[] path)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -42,7 +42,7 @@ namespace Uri.Tests
         public void FromString_ReceivedNull_ReturnedNull()
         {
             // Act
-            var uri = Uri.FromString(null);
+            var uri = UniformResourceIdentifier.FromString(null);
 
             // Assert
             Assert.IsNull(uri);
@@ -52,7 +52,7 @@ namespace Uri.Tests
         public void FromString_ReceivedEmptyString_ReturnedNull()
         {
             // Act
-            var uri = Uri.FromString(string.Empty);
+            var uri = UniformResourceIdentifier.FromString(string.Empty);
 
             // Assert
             Assert.IsNull(uri);
@@ -62,7 +62,7 @@ namespace Uri.Tests
         public void FromString_ReceivedStringContainingOnlyWhitespaces_ReturnedNull()
         {
             // Act
-            var uri = Uri.FromString("    \t    \n    \r     ");
+            var uri = UniformResourceIdentifier.FromString("    \t    \n    \r     ");
 
             // Assert
             Assert.IsNull(uri);
@@ -72,7 +72,7 @@ namespace Uri.Tests
         public void FromString_UriWithSchemeAndEmptyPath_UriProperlyParsed()
         {
             // Act
-            var uri = Uri.FromString("ssh:");
+            var uri = UniformResourceIdentifier.FromString("ssh:");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -89,7 +89,7 @@ namespace Uri.Tests
         public void FromString_PathAbsoluteAndFirstSegmentEmpty_ReturnedNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -99,7 +99,7 @@ namespace Uri.Tests
         public void FromString_SchemeWithFirstCharNotLetter_ReturnedNull()
         {
             // Act
-            var uri = Uri.FromString("1sh://auth.xyz//foo");
+            var uri = UniformResourceIdentifier.FromString("1sh://auth.xyz//foo");
 
             // Assert
             Assert.IsNull(uri);
@@ -112,7 +112,7 @@ namespace Uri.Tests
         public void FromString_SchemeWithNotAllowedChar_ReturnedNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -125,7 +125,7 @@ namespace Uri.Tests
         public void FromString_NoAuthorityFirstPathWithColon_ReturnedNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -135,7 +135,7 @@ namespace Uri.Tests
         public void FromString_AuthorityEqualToHost_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://www.example.com/foo/bar");
+            var uri = UniformResourceIdentifier.FromString("https://www.example.com/foo/bar");
 
             // Assert
             Assert.AreEqual(uri.Authority, uri.Host);
@@ -145,7 +145,7 @@ namespace Uri.Tests
         public void FromString_UserInformationNotEmpty_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://user@www.example.com/foo/bar");
+            var uri = UniformResourceIdentifier.FromString("https://user@www.example.com/foo/bar");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -156,7 +156,7 @@ namespace Uri.Tests
         public void FromString_UserInformationNotEmpty_ValidHostProperty()
         {
             // Act
-            var uri = Uri.FromString("https://user@www.example.com/foo/bar");
+            var uri = UniformResourceIdentifier.FromString("https://user@www.example.com/foo/bar");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -167,7 +167,7 @@ namespace Uri.Tests
         public void FromString_HostWithMixedCapitalization_LowerCaseHost()
         {
             // Act
-            var uri = Uri.FromString("https://user@wWw.eXaMPle.COm/foo/bar");
+            var uri = UniformResourceIdentifier.FromString("https://user@wWw.eXaMPle.COm/foo/bar");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -182,7 +182,7 @@ namespace Uri.Tests
         public void FromString_SchemeWithMixedCapitalization_LowerCaseScheme(string uriString, string scheme)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -193,7 +193,7 @@ namespace Uri.Tests
         public void FromString_PathWithMixedCapitalization_CapitalizationIsPreserved()
         {
             // Act
-            var uri = Uri.FromString("ssh://example.com/FoO/BAR");
+            var uri = UniformResourceIdentifier.FromString("ssh://example.com/FoO/BAR");
 
             // Assert
             Assert.AreEqual("FoO", uri.Path[1]);
@@ -204,7 +204,7 @@ namespace Uri.Tests
         public void FromString_UserInformationWithMixedCapitalization_CapitalizationIsPreserved()
         {
             // Act
-            var uri = Uri.FromString("ssh://ABcdEfG@example.com/FoO/BAR");
+            var uri = UniformResourceIdentifier.FromString("ssh://ABcdEfG@example.com/FoO/BAR");
 
             // Assert
             Assert.AreEqual("ABcdEfG", uri.UserInformation);
@@ -214,7 +214,7 @@ namespace Uri.Tests
         public void FromString_UserInformationEmpty_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("ssh://@example.com/FoO/BAR");
+            var uri = UniformResourceIdentifier.FromString("ssh://@example.com/FoO/BAR");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -228,7 +228,7 @@ namespace Uri.Tests
         public void FromString_UserInformationExtraChars_ReturnedValidObject(string uriString, string userInformation)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.AreEqual(userInformation, uri.UserInformation);
@@ -243,7 +243,7 @@ namespace Uri.Tests
         public void FromString_UriContainsUnicode_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -253,7 +253,7 @@ namespace Uri.Tests
         public void FromString_UriWithPort_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com:8080/");
+            var uri = UniformResourceIdentifier.FromString("https://example.com:8080/");
 
             // Assert
             Assert.AreEqual(8080, uri.Port);
@@ -263,7 +263,7 @@ namespace Uri.Tests
         public void FromString_UriWithEmptyPort_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com:/");
+            var uri = UniformResourceIdentifier.FromString("https://example.com:/");
 
             // Assert
             Assert.AreEqual(0, uri.Port);
@@ -273,7 +273,7 @@ namespace Uri.Tests
         public void FromString_PortWithNonDigit_ReturnsNull()
         {
             // Act
-            var uri = Uri.FromString("https://example.com:80a/");
+            var uri = UniformResourceIdentifier.FromString("https://example.com:80a/");
 
             // Assert
             Assert.IsNull(uri);
@@ -283,7 +283,7 @@ namespace Uri.Tests
         public void FromString_AuthorityWithPort_ReturnsNull()
         {
             // Act
-            var uri = Uri.FromString("https://user@example.com:80/");
+            var uri = UniformResourceIdentifier.FromString("https://user@example.com:80/");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -297,7 +297,7 @@ namespace Uri.Tests
         public void FromString_UserWithColonAndPortPresent_ReturnedValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://user:passwd@example.com:8080/foo");
+            var uri = UniformResourceIdentifier.FromString("https://user:passwd@example.com:8080/foo");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -311,7 +311,7 @@ namespace Uri.Tests
         public void FromString_AuthorityMixedCapitalization_AuthorityNormalizedAndHostNormalized()
         {
             // Act
-            var uri = Uri.FromString("ssh://USER:Passwd@EXAMple.UK.com/");
+            var uri = UniformResourceIdentifier.FromString("ssh://USER:Passwd@EXAMple.UK.com/");
 
             // Assert
             Assert.AreEqual("USER:Passwd@example.uk.com", uri.Authority);
@@ -326,7 +326,7 @@ namespace Uri.Tests
         public void HasScheme_UriHasScheme_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasScheme);
@@ -339,7 +339,7 @@ namespace Uri.Tests
         public void HasAuthority_UriHasAuthority_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasAuthority);
@@ -352,7 +352,7 @@ namespace Uri.Tests
         public void HasAuthority_UriDoesNotHaveAuthority_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasAuthority);
@@ -365,7 +365,7 @@ namespace Uri.Tests
         public void HasUserInformation_UriHasUserInformation_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasUserInformation);
@@ -378,7 +378,7 @@ namespace Uri.Tests
         public void HasUserInformation_UriDoesNotHaveUserInformation_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasUserInformation);
@@ -391,7 +391,7 @@ namespace Uri.Tests
         public void HasHost_UriHasHost_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasHost);
@@ -404,7 +404,7 @@ namespace Uri.Tests
         public void HasHost_UriDoesNotHaveHost_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasHost);
@@ -415,7 +415,7 @@ namespace Uri.Tests
         public void HasPort_UriHasPort_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasPort);
@@ -430,7 +430,7 @@ namespace Uri.Tests
         public void HasPort_UriDoesNotHavePort_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasPort);
@@ -443,7 +443,7 @@ namespace Uri.Tests
         public void HasEmptyPath_UriHasEmptyPath_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasEmptyPath);
@@ -458,7 +458,7 @@ namespace Uri.Tests
         public void HasEmptyPath_UriHasNonEmptyPath_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasEmptyPath);
@@ -468,7 +468,7 @@ namespace Uri.Tests
         public void FromString_UserInformationHasNotAllowedChars_ReturnsNull()
         {
             // Act
-            var uri = Uri.FromString("https://user:pass[wd@example.com/");
+            var uri = UniformResourceIdentifier.FromString("https://user:pass[wd@example.com/");
 
             // Assert
             Assert.IsNull(uri);
@@ -478,7 +478,7 @@ namespace Uri.Tests
         public void FromString_WithAuthorityPathContainsNotAllowedChars_ReturnsNull()
         {
             // Act
-            var uri = Uri.FromString("https://exmaple.com/foo[/bar");
+            var uri = UniformResourceIdentifier.FromString("https://exmaple.com/foo[/bar");
 
             // Assert
             Assert.IsNull(uri);
@@ -488,7 +488,7 @@ namespace Uri.Tests
         public void FromString_WithoutAuthorityPathContainsNotAllowedChars_ReturnsNull()
         {
             // Act
-            var uri = Uri.FromString("https:foo]/bar");
+            var uri = UniformResourceIdentifier.FromString("https:foo]/bar");
 
             // Assert
             Assert.IsNull(uri);
@@ -500,7 +500,7 @@ namespace Uri.Tests
         public void FromString_HostHasNotAllowedChars_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -528,7 +528,7 @@ namespace Uri.Tests
             string host)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -548,7 +548,7 @@ namespace Uri.Tests
         public void FromString_InvalidIpLiteral_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -601,7 +601,7 @@ namespace Uri.Tests
             string host)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -622,7 +622,7 @@ namespace Uri.Tests
         public void FromString_InValidIpV6Address_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -640,7 +640,7 @@ namespace Uri.Tests
             string host)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -653,7 +653,7 @@ namespace Uri.Tests
         public void FromString_InValidIpV4Address_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -669,7 +669,7 @@ namespace Uri.Tests
             string[] path)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -694,7 +694,7 @@ namespace Uri.Tests
             string query)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -710,7 +710,7 @@ namespace Uri.Tests
         public void FromString_QueryWithNotAllowedChars_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -720,7 +720,7 @@ namespace Uri.Tests
         public void FromString_UriWithEmptyQuery_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com?");
+            var uri = UniformResourceIdentifier.FromString("https://example.com?");
 
             // Assert
             Assert.IsTrue(uri.HasQuery);
@@ -732,7 +732,7 @@ namespace Uri.Tests
         public void FromString_UriKeyValueQuery_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com?key1=value1&key2=value2#key=value3");
+            var uri = UniformResourceIdentifier.FromString("https://example.com?key1=value1&key2=value2#key=value3");
 
             // Assert
             Assert.IsTrue(uri.HasQuery);
@@ -748,7 +748,7 @@ namespace Uri.Tests
         public void FromString_QueryWithOnlyKeys_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com?key1&key2#key3");
+            var uri = UniformResourceIdentifier.FromString("https://example.com?key1&key2#key3");
 
             // Assert
             Assert.IsTrue(uri.HasQuery);
@@ -764,7 +764,7 @@ namespace Uri.Tests
         public void FromString_QueryWithKeysAndEmptyValues_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("https://example.com?key1=&key2=#key3=");
+            var uri = UniformResourceIdentifier.FromString("https://example.com?key1=&key2=#key3=");
 
             // Assert
             Assert.IsTrue(uri.HasQuery);
@@ -791,7 +791,7 @@ namespace Uri.Tests
         public void HasQuery_UriHasQueryComponent_ReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasQuery);
@@ -808,7 +808,7 @@ namespace Uri.Tests
         public void HasQuery_UriDoesNotHaveQueryComponent_ReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasQuery);
@@ -829,7 +829,7 @@ namespace Uri.Tests
             string fragment)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.AreEqual(fragment, uri.Fragment);
@@ -849,7 +849,7 @@ namespace Uri.Tests
         public void HasFragment_UriHasFragment_HasFragmentReturnsTrue(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsTrue(uri.HasFragment);
@@ -863,7 +863,7 @@ namespace Uri.Tests
         public void FromString_UriDoesNotHaveFragment_ReturnsValidObject(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.AreEqual(null, uri.Fragment);
@@ -877,7 +877,7 @@ namespace Uri.Tests
         public void HasFragment_UriDoesNotHaveFragment_HasFragmentReturnsFalse(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsFalse(uri.HasFragment);
@@ -892,7 +892,7 @@ namespace Uri.Tests
         public void FromString_FragmentWithNotAllowedChars_ReturnsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -924,7 +924,7 @@ namespace Uri.Tests
         public void ToString_GotValidUri_ReturnedNormalizedUri(string uriString, string normalizedUri)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.AreEqual(normalizedUri, uri.ToString());
@@ -937,7 +937,7 @@ namespace Uri.Tests
         public void FroString_PathWithPercentEncodedChars_RetrunsDecodedPath(string uriString, string path)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -953,7 +953,7 @@ namespace Uri.Tests
         public void FroString_PathWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -966,7 +966,7 @@ namespace Uri.Tests
         public void FroString_UserInformationWithPercentEncodedChars_RetrunsDecodedUserInformation(string uriString, string userInformation)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -982,7 +982,7 @@ namespace Uri.Tests
         public void FroString_UserInformationWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -992,7 +992,7 @@ namespace Uri.Tests
         public void FroString_QueryWithPercentEncodedChars_RetrunsDecodedQuery()
         {
             // Act
-            var uri = Uri.FromString("https://example.com/path?ke%20y=va%23%3dlue#");
+            var uri = UniformResourceIdentifier.FromString("https://example.com/path?ke%20y=va%23%3dlue#");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1005,7 +1005,7 @@ namespace Uri.Tests
         public void FroString_QueryWithNoValueWithPercentEncodedChars_RetrunsDecodedQuery()
         {
             // Act
-            var uri = Uri.FromString("https://example.com/path?ke%20y#");
+            var uri = UniformResourceIdentifier.FromString("https://example.com/path?ke%20y#");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1017,7 +1017,7 @@ namespace Uri.Tests
         public void FroString_QueryWithEmptyValueWithPercentEncodedChars_RetrunsDecodedQuery()
         {
             // Act
-            var uri = Uri.FromString("https://example.com/path?ke%20y=#");
+            var uri = UniformResourceIdentifier.FromString("https://example.com/path?ke%20y=#");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1034,7 +1034,7 @@ namespace Uri.Tests
         public void FroString_QueryWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -1046,7 +1046,7 @@ namespace Uri.Tests
         public void FroString_FragmentWithPercentEncodedChars_RetrunsDecodedFragment(string uriString, string fragment)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1060,7 +1060,7 @@ namespace Uri.Tests
         public void FroString_FragmentWithInvalidPercentEncodedChars_RetrunsNull(string uriString)
         {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNull(uri);
@@ -1076,7 +1076,7 @@ namespace Uri.Tests
             string uriString, string result)
         {
             // Arrange
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Act
             var uriToStringResult = uri.ToString();
@@ -1093,7 +1093,7 @@ namespace Uri.Tests
             string uriString, string result)
         {
             // Arrange
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Act
             var uriToStringResult = uri.ToString();
@@ -1110,7 +1110,7 @@ namespace Uri.Tests
             string uriString, string result)
         {
             // Arrange
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Act
             var uriToStringResult = uri.ToString();
@@ -1127,7 +1127,7 @@ namespace Uri.Tests
             string uriString, string result)
         {
             // Arrange
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Act
             var uriToStringResult = uri.ToString();
@@ -1140,7 +1140,7 @@ namespace Uri.Tests
         public void ToString_GivenUriWithIpLiteralHost_ReturnsTheSameString()
         {
             // Act
-            var uri = Uri.FromString("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment");
+            var uri = UniformResourceIdentifier.FromString("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment");
 
             // Assert
             Assert.AreEqual("https://user@[12:34:56:78:90:ab:cd:ef]:8080/path#fragment", uri.ToString());
@@ -1150,7 +1150,7 @@ namespace Uri.Tests
         public void FromString_GivenStringWithoutSchemeWithAuthority_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1165,7 +1165,7 @@ namespace Uri.Tests
         public void ToString_GivenStringWithoutSchemeWithAuthority_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("//user@example.com:8080/foo/bar?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1177,7 +1177,7 @@ namespace Uri.Tests
         public void FromString_GivenStringWithoutSchemeAuthorityWithPath_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("/foo/bar?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("/foo/bar?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1196,7 +1196,7 @@ namespace Uri.Tests
         public void ToString_GivenStringWithoutSchemeAuthorityWithPath_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("/foo/bar?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("/foo/bar?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1208,7 +1208,7 @@ namespace Uri.Tests
         public void FromString_GivenStringWithoutSchemeAuthorityPathWithQuery_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1228,7 +1228,7 @@ namespace Uri.Tests
         public void ToString_GivenStringWithoutSchemeAuthorityPathWithQuery_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("?key1=value1#fragment");
+            var uri = UniformResourceIdentifier.FromString("?key1=value1#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1240,7 +1240,7 @@ namespace Uri.Tests
         public void FromString_GivenStringWithoutSchemeAuthorityPathQueryWithFragment_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("#fragment");
+            var uri = UniformResourceIdentifier.FromString("#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1260,7 +1260,7 @@ namespace Uri.Tests
         public void ToString_GivenStringWithoutSchemeAuthorityPathQueryWithFragment_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("#fragment");
+            var uri = UniformResourceIdentifier.FromString("#fragment");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1272,7 +1272,7 @@ namespace Uri.Tests
         public void FromString_GivenStringWithRelativePathOnly_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("thisIsARelativePath");
+            var uri = UniformResourceIdentifier.FromString("thisIsARelativePath");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1291,7 +1291,7 @@ namespace Uri.Tests
         public void ToString_GivenStringWithRelativePathOnly_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("thisIsARelativePath");
+            var uri = UniformResourceIdentifier.FromString("thisIsARelativePath");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1317,7 +1317,7 @@ namespace Uri.Tests
             int amountOfPathSegments
         ) {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1343,7 +1343,7 @@ namespace Uri.Tests
             string normalizedString
         ) {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1364,7 +1364,7 @@ namespace Uri.Tests
             int amountOfPathSegments
         ) {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1386,7 +1386,7 @@ namespace Uri.Tests
             string normalizedUri
         ) {
             // Act
-            var uri = Uri.FromString(uriString);
+            var uri = UniformResourceIdentifier.FromString(uriString);
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1400,7 +1400,7 @@ namespace Uri.Tests
         public void FromString_GivenRelativeReferenceWithPathContainingColon_ReturnValidObject()
         {
             // Act
-            var uri = Uri.FromString("./this:that");
+            var uri = UniformResourceIdentifier.FromString("./this:that");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1413,7 +1413,7 @@ namespace Uri.Tests
         public void ToString_GivenRelativeReferenceWithPathContainingColon_ReturnsNormalizedPath()
         {
             // Act
-            var uri = Uri.FromString("./this:that");
+            var uri = UniformResourceIdentifier.FromString("./this:that");
 
             // Assert
             Assert.AreEqual("./this:that", uri.ToString());
@@ -1423,7 +1423,7 @@ namespace Uri.Tests
         public void FromString_GivenUriWithoutSchemeAndWithPathWithDotSegments_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("foo/this:that/bar");
+            var uri = UniformResourceIdentifier.FromString("foo/this:that/bar");
 
             // Assert
             Assert.IsNotNull(uri);
@@ -1439,7 +1439,7 @@ namespace Uri.Tests
         public void ToString_GivenUriWithoutSchemeAndWithPathWithDotSegments_ReturnsValidObject()
         {
             // Act
-            var uri = Uri.FromString("foo/this:that/bar");
+            var uri = UniformResourceIdentifier.FromString("foo/this:that/bar");
 
             // Assert
             Assert.IsNotNull(uri);

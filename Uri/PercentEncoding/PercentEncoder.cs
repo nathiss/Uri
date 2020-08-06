@@ -13,7 +13,7 @@ namespace Uri.PercentEncoding
 {
     /// <summary>
     /// This class provider the functionality to percent-encode a segment of an URI.
-    /// It's used by <see cref="Uri" />.
+    /// It's used by <see cref="UniformResourceIdentifier" />.
     /// </summary>
     public static class PercentEncoder
     {

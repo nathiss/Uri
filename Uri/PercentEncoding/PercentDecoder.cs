@@ -15,7 +15,7 @@ namespace Uri.PercentEncoding
 {
     /// <summary>
     /// This class provider the functionality to decode percent-encoded characters.
-    /// It's used by <see cref="Uri" /> class when decomposing URIs.
+    /// It's used by <see cref="UniformResourceIdentifier" /> class when decomposing URIs.
     /// </summary>
     public static class PercentDecoder
     {

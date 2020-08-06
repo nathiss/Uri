@@ -17,23 +17,23 @@ namespace Uri
     /// This class represents a Universal Resource Identifier (URI) which is
     /// documented by <see href="https://tools.ietf.org/html/rfc3986">RFC 3986</see>.
     /// </summary>
-    public partial class Uri
+    public class UniformResourceIdentifier
     {
 
         /// <summary>
-        /// This method builds a <seealso cref="Uri"/> object from the
+        /// This method builds a <seealso cref="UniformResourceIdentifier"/> object from the
         /// given <paramref name="uriString"/>.
         /// </summary>
         /// <param name="uriString">
-        /// This is the URI string which will be used to build a <see cref="Uri"/>
+        /// This is the URI string which will be used to build a <see cref="UniformResourceIdentifier"/>
         /// object.
         /// </param>
         /// <returns>
-        /// If the operation was successful a <see cref="Uri" /> object is returned.
+        /// If the operation was successful a <see cref="UniformResourceIdentifier" /> object is returned.
         /// Otherwise if the <paramref name="uriString"/> was ill-formed this method
         /// will return null.
         /// </returns>
-        public static Uri FromString(string uriString)
+        public static UniformResourceIdentifier FromString(string uriString)
         {
             if (string.IsNullOrWhiteSpace(uriString) || uriString.ContainsNonAsciiLetters())
             {
@@ -48,7 +48,7 @@ namespace Uri
                 var query = QueryComponent.FromString(uriString, path.Offset);
                 var fragment = FragmentComponent.FromString(uriString, query.Offset);
 
-                return new Uri
+                return new UniformResourceIdentifier
                 {
                     _scheme = scheme.Scheme,
                     _authority = authority.Authority,
@@ -239,10 +239,10 @@ namespace Uri
         public bool HasFragment => Fragment != null;
 
         /// <summary>
-        /// This is the default constructor of the <see cref="Uri"/> class.
-        /// Since this constructor is private the only was of create a new <see cref="Uri"/>
+        /// This is the default constructor of the <see cref="UniformResourceIdentifier"/> class.
+        /// Since this constructor is private the only was of create a new <see cref="UniformResourceIdentifier"/>
         /// object is through <see cref="FromString"/> static method.
         /// </summary>
-        private Uri() { }
+        private UniformResourceIdentifier() { }
     }
 }
