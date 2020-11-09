@@ -125,6 +125,12 @@ not begin with a slash character is termed a relative-path reference.
   If host matches the rule for IPv4address, then it should be
   considered an IPv4 address literal and not a reg-name.
 
+## Known limitations
+
+* Parsing of UTF-8 encoded Host component has not been yet implemented.
+* Parsing of an IPv6 address in which two least significant peaces are represented as an IPv4 address has not been yet
+  implemented.
+
 ## License
 
 This program is distributed under The MIT License. See [LICENSE.txt](LICENSE.txt) file.
