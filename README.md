@@ -1,7 +1,5 @@
 # Uri
 
-[![Build Status](https://travis-ci.com/nathiss/Uri.svg?branch=master)](https://travis-ci.com/nathiss/Uri)
-
 This repository contains the implementation of the URI.
 
 ## Uniform Resource Identifier
