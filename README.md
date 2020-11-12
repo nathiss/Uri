@@ -1,6 +1,6 @@
 # Uri
 
-![Nuget](https://img.shields.io/nuget/v/Nathiss.Uri)
+[![Nuget](https://img.shields.io/nuget/v/Nathiss.Uri)](https://www.nuget.org/packages/Nathiss.Uri/)
 
 This repository contains the implementation of the URI.
 
