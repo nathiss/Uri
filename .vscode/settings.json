@@ -26,5 +26,6 @@
         "submodule",
         "submodules",
         "us'er"
-    ]
+    ],
+    "dotnet-test-explorer.testProjectPath": "**/*.Tests.csproj"
 }
