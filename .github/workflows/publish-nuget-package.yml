@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: build, pack & publish
+    name: build, test, pack & publish
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +39,8 @@ jobs:
       run: dotnet restore ./Uri
     - name: Build a Release version
       run: dotnet build --configuration Release --no-restore ./Uri
+    - name: Run tests
+      run: dotnet test --configuration Release --no-restore --no-build ./Uri.Tests
     - name: Pack
       run: dotnet pack --configuration Release -o out ./Uri --no-restore --no-build
     - name: Publish
