@@ -33,9 +33,7 @@ jobs:
         git config user.email "kamil.jakub.rusin@gmail.com"
         git add **/*.csproj
         git commit -m "Update version to ${URI_VERSION}"
-        git push origin
         git tag -a ${URI_VERSION} -m "v${URI_VERSION}"
-        git push origin --tags
 
     - name: Install dependencies
       run: dotnet restore ./Uri
@@ -47,4 +45,9 @@ jobs:
       run: dotnet nuget push out/*.nupkg --api-key ${GITHUB_TOKEN} --source https://api.nuget.org/v3/index.json
       env:
         GITHUB_TOKEN: ${{ secrets.URI_NUGET_KEY }}
+
+    - name: Push commit & tag
+      run: |
+        git push origin
+        git push origin --tags
 

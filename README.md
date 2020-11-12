@@ -1,5 +1,7 @@
 # Uri
 
+![Nuget](https://img.shields.io/nuget/v/Nathiss.Uri)
+
 This repository contains the implementation of the URI.
 
 ## Uniform Resource Identifier
