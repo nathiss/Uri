@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -23,14 +24,23 @@ jobs:
         python-version: '3'
         architecture: 'x64'
 
+    - name: Import GPG key
+      uses: crazy-max/ghaction-import-gpg@v3
+      id: import_gpg_action
+      with:
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        passphrase: ${{ secrets.PASSPHRASE }}
+        git-user-signingkey: true
+        git-commit-gpgsign: true
+        git-tag-gpgsign: true
+
     - name: Update version
       run: python .github/scripts/auto-increment-version.py
 
     - name: Commit version change
       run: |
         source .env
-        git config user.name "Kamil Rusin"
-        git config user.email "kamil.jakub.rusin@gmail.com"
+        echo "Signing with key: ${{ steps.import_gpg_action.fingerprint }}"
         git add **/*.csproj
         git commit -m "Update version to ${URI_VERSION}"
         git tag -a ${URI_VERSION} -m "v${URI_VERSION}"

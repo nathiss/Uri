@@ -13,7 +13,9 @@
         "ex",
         "exts",
         "exæample",
+        "ghaction",
         "gitmodules",
+        "gpgsign",
         "hier",
         "infosystems",
         "ldap",
@@ -23,6 +25,7 @@
         "passwd",
         "rohith",
         "sdffd",
+        "signingkey",
         "submodule",
         "submodules",
         "us'er"
