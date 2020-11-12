@@ -10,8 +10,10 @@
         <Product>Uniform Resource Identifier</Product>
         <NeutralLanguage>en-US</NeutralLanguage>
         <Copyright>Copyright &#169; Kamil Rusin 2020</Copyright>
+        <PackageDescription>Uri is a Uniform Resource Identifier parser library.</PackageDescription>
         <Summary>Uri is a Uniform Resource Identifier parser library.</Summary>
         <Title>Uniform Resource Identifier</Title>
+        <RepositoryUrl>https://github.com/nathiss/Uri</RepositoryUrl>
         <PackageProjectUrl>https://github.com/nathiss/Uri</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
