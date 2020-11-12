@@ -17,4 +17,7 @@ with open(ENV_VARIABLE_FILE, 'w') as f:
     f.write(ENV_VARIABLE_NAME + '=' + new_version + '\n')
 
 version_tag.text = new_version
-csproj_tree.write(CSPROJ_FILE)
+csproj_tree.write(CSPROJ_FILE, encoding='UTF-8')
+
+with open(CSPROJ_FILE, 'a') as f:
+    f.write('')
